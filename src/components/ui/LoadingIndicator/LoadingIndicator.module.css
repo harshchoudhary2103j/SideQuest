@@ -1,0 +1,142 @@
+.container {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* Colors */
+.colorLime {
+  color: var(--color-primary-action);
+}
+
+.colorPurple {
+  color: var(--color-purple);
+}
+
+.colorWhite {
+  color: #FFFFFF;
+}
+
+/* Spinner */
+.spinner {
+  border-radius: 50%;
+  border: 2.5px solid currentColor;
+  border-right-color: transparent;
+  animation: spin 0.8s linear infinite;
+}
+
+.sm.spinner {
+  width: 18px;
+  height: 18px;
+  border-width: 2px;
+}
+
+.md.spinner {
+  width: 28px;
+  height: 28px;
+  border-width: 3px;
+}
+
+.lg.spinner {
+  width: 44px;
+  height: 44px;
+  border-width: 4px;
+}
+
+/* Dots */
+.dotsWrap {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.dot {
+  background-color: currentColor;
+  border-radius: 50%;
+  animation: bounceDot 1.2s infinite ease-in-out both;
+}
+
+.dot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.dot:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+.sm .dot {
+  width: 5px;
+  height: 5px;
+}
+
+.md .dot {
+  width: 8px;
+  height: 8px;
+}
+
+.lg .dot {
+  width: 12px;
+  height: 12px;
+}
+
+/* Pulse */
+.pulseCircle {
+  background-color: currentColor;
+  border-radius: 50%;
+  animation: pulseScale 1.4s ease-in-out infinite;
+}
+
+.sm.pulseCircle {
+  width: 16px;
+  height: 16px;
+}
+
+.md.pulseCircle {
+  width: 24px;
+  height: 24px;
+}
+
+.lg.pulseCircle {
+  width: 38px;
+  height: 38px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bounceDot {
+  0%, 80%, 100% {
+    transform: scale(0);
+    opacity: 0.3;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pulseScale {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner, .dot, .pulseCircle {
+    animation: none;
+    opacity: 0.8;
+  }
+}

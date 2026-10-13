@@ -1,0 +1,99 @@
+.container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.labelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-family-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+
+.track {
+  width: 100%;
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Sizes */
+.sm .track {
+  height: 6px;
+}
+
+.md .track {
+  height: 10px;
+}
+
+.lg .track {
+  height: 16px;
+}
+
+/* Fill */
+.fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  transition: width 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+/* Variants */
+.limeFill {
+  background: linear-gradient(90deg, #A3E635 0%, #D4FF38 100%);
+  box-shadow: 0 0 12px rgba(212, 255, 56, 0.4);
+}
+
+.purpleFill {
+  background: linear-gradient(90deg, #7C3AED 0%, #A78BFA 100%);
+  box-shadow: 0 0 12px rgba(124, 58, 237, 0.4);
+}
+
+.goldFill {
+  background: linear-gradient(90deg, #F59E0B 0%, #FFC857 100%);
+  box-shadow: 0 0 12px rgba(255, 200, 87, 0.4);
+}
+
+.gradientFill {
+  background: linear-gradient(90deg, #7C3AED 0%, #F04F9D 50%, #D4FF38 100%);
+  box-shadow: 0 0 14px rgba(212, 255, 56, 0.3);
+}
+
+/* Shimmer pulse animation */
+.animated .fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animated .fill::after {
+    animation: none;
+  }
+}

@@ -1,0 +1,116 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.briefingCard {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  background: linear-gradient(135deg, var(--color-surface-raised) 0%, var(--color-surface-standard) 100%);
+}
+
+.mascotThumb {
+  flex-shrink: 0;
+}
+
+.briefingText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.briefingTitle {
+  font-family: var(--font-family-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.briefingDesc {
+  font-family: var(--font-family-body);
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-2);
+}
+
+.xpReward {
+  font-family: var(--font-family-display);
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: var(--color-gold);
+}
+
+.objectivesBox {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  background-color: var(--color-surface-raised);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.objectiveItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-family-body);
+  font-size: 0.8125rem;
+  color: var(--color-text-primary);
+}
+
+.lockedCard {
+  opacity: 0.65;
+  border-style: dashed;
+}
+
+.lockedHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.lockIconWrap {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+}
+
+.lockedTitle {
+  font-family: var(--font-family-display);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.lockedDesc {
+  font-family: var(--font-family-body);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}

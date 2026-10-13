@@ -1,0 +1,74 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-family-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+/* Sizes */
+.sm {
+  padding: 3px 8px;
+  font-size: 0.625rem;
+}
+
+.md {
+  padding: 5px 12px;
+  font-size: 0.6875rem;
+}
+
+/* Variants */
+.lime {
+  background-color: rgba(212, 255, 56, 0.15);
+  color: var(--color-primary-action);
+  border: 1px solid rgba(212, 255, 56, 0.35);
+}
+
+.purple {
+  background-color: rgba(124, 58, 237, 0.18);
+  color: #C084FC;
+  border: 1px solid rgba(124, 58, 237, 0.4);
+}
+
+.pink {
+  background-color: rgba(240, 79, 157, 0.18);
+  color: var(--color-pink);
+  border: 1px solid rgba(240, 79, 157, 0.35);
+}
+
+.gold {
+  background-color: rgba(255, 200, 87, 0.18);
+  color: var(--color-gold);
+  border: 1px solid rgba(255, 200, 87, 0.4);
+}
+
+.success {
+  background-color: rgba(69, 214, 160, 0.18);
+  color: var(--color-success);
+  border: 1px solid rgba(69, 214, 160, 0.35);
+}
+
+.error {
+  background-color: rgba(255, 100, 124, 0.18);
+  color: var(--color-error);
+  border: 1px solid rgba(255, 100, 124, 0.35);
+}
+
+.neutral {
+  background-color: var(--color-surface-raised);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border-subtle);
+}
+
+/* Dot indicator */
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
+}

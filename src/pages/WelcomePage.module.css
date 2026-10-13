@@ -1,0 +1,126 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-4);
+  max-width: 520px;
+  margin: 0 auto;
+  position: relative;
+  justify-content: space-between;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4) 0;
+}
+
+.logoBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border-subtle);
+  font-family: var(--font-family-display);
+  font-weight: 800;
+  font-size: 0.9375rem;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+  flex: 1;
+  justify-content: center;
+}
+
+.mascotHero {
+  margin: var(--space-4) 0;
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-3);
+}
+
+.heroTitle {
+  font-family: var(--font-family-display);
+  font-size: clamp(2rem, 7vw, 2.75rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: var(--color-text-primary);
+}
+
+.gradientHighlight {
+  background: linear-gradient(135deg, #D4FF38 0%, #A3E635 60%, #7C3AED 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.tagline {
+  font-family: var(--font-family-body);
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  max-width: 380px;
+}
+
+.pillsRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-top: var(--space-2);
+}
+
+.featureCard {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.featureItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  text-align: left;
+}
+
+.featureIcon {
+  font-size: 1.25rem;
+  line-height: 1;
+  padding-top: 2px;
+}
+
+.featureTitle {
+  font-family: var(--font-family-display);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.featureDesc {
+  font-family: var(--font-family-body);
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+.actionGroup {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+  padding-bottom: var(--space-6);
+}

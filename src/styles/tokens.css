@@ -1,0 +1,95 @@
+/**
+ * SideQuest Design System Tokens
+ * Phase 1: Frontend Foundation
+ * Theme: Premium Dark Social Gaming with Chaotic Energy
+ */
+
+:root {
+  /* Color Palette — Brand & Surfaces */
+  --color-bg-main: #080B18;
+  --color-surface-standard: #11162A;
+  --color-surface-raised: #191F38;
+  --color-surface-elevated: #22294A;
+  --color-surface-overlay: rgba(8, 11, 24, 0.85);
+
+  /* Color Palette — Borders */
+  --color-border-subtle: #292F49;
+  --color-border-standard: #384166;
+  --color-border-focus: #7C3AED;
+  --color-border-action: #D4FF38;
+
+  /* Color Palette — Text & Content */
+  --color-text-primary: #F5F6FF;
+  --color-text-secondary: #A4ABC4;
+  --color-text-muted: #6B7494;
+  --color-text-action: #080B18;
+
+  /* Color Palette — Expressive & Action Colors */
+  --color-primary-action: #D4FF38;       /* Neon lime for high-impact CTA */
+  --color-primary-action-hover: #C2F020;
+  --color-purple: #7C3AED;               /* Electric purple for brand aura */
+  --color-purple-light: #9061F9;
+  --color-purple-glow: rgba(124, 58, 237, 0.35);
+  --color-pink: #F04F9D;                 /* Playful pink accent */
+  --color-pink-soft: rgba(240, 79, 157, 0.15);
+  --color-gold: #FFC857;                 /* Reward / XP / Crown gold */
+  --color-gold-glow: rgba(255, 200, 87, 0.3);
+  --color-success: #45D6A0;              /* Emerald green */
+  --color-error: #FF647C;                /* Punchy rose */
+
+  /* Typography */
+  --font-family-display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-family-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Spacing Scale (8px base with 4px fine steps) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Border Radii */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-button: 14px;                 /* Specification: 14–16px */
+  --radius-card: 18px;                   /* Specification: 16–20px */
+  --radius-modal: 24px;
+  --radius-pill: 9999px;
+
+  /* Shadows and Glows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-raised: 0 14px 36px rgba(0, 0, 0, 0.6);
+  --glow-lime: 0 0 22px rgba(212, 255, 56, 0.35);
+  --glow-purple: 0 0 28px rgba(124, 58, 237, 0.4);
+  --glow-pink: 0 0 20px rgba(240, 79, 157, 0.3);
+  --glow-gold: 0 0 22px rgba(255, 200, 87, 0.35);
+
+  /* Touch Target & Safe Areas */
+  --min-touch-target: 48px;
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-left: env(safe-area-inset-left, 0px);
+  --safe-area-right: env(safe-area-inset-right, 0px);
+
+  /* Navigation Dimensions */
+  --bottom-nav-height: 64px;
+  --desktop-sidebar-width: 260px;
+  --mobile-max-width: 480px;
+
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-normal: 250ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-bounce: 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Z-Index Layers */
+  --z-base: 1;
+  --z-sticky: 10;
+  --z-nav: 50;
+  --z-modal: 100;
+  --z-toast: 200;
+}

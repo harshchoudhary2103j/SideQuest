@@ -1,0 +1,113 @@
+@import './tokens.css';
+@import './typography.css';
+
+/* Box sizing and default reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  background-color: var(--color-bg-main);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  text-rendering: optimizeLegibility;
+}
+
+#root {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Accessible focus visible outlines */
+:focus-visible {
+  outline: 2px solid var(--color-border-action);
+  outline-offset: 3px;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--color-border-action);
+  outline-offset: 2px;
+}
+
+/* Links */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Interactive elements default touch target */
+button,
+a,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+/* Media defaults */
+img, svg, video {
+  display: block;
+  max-width: 100%;
+}
+
+/* Custom sleek scrollbar for webkit */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-main);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-subtle);
+  border-radius: var(--radius-pill);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-purple);
+}
+
+/* Reduced Motion respect */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Safe area padding utilities */
+.safe-top {
+  padding-top: var(--safe-area-top);
+}
+
+.safe-bottom {
+  padding-bottom: var(--safe-area-bottom);
+}
+
+/* Screen reader only utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

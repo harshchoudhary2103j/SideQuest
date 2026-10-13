@@ -1,0 +1,126 @@
+.toastContainer {
+  position: fixed;
+  top: max(var(--safe-area-top), 16px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: calc(100% - 32px);
+  max-width: 420px;
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-button);
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border-standard);
+  box-shadow: var(--shadow-raised);
+  backdrop-filter: blur(12px);
+  animation: slideDown 250ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.iconWrap {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+}
+
+.body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.title {
+  font-family: var(--font-family-display);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.message {
+  font-family: var(--font-family-body);
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  line-height: 1.35;
+}
+
+.closeButton {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--transition-fast);
+}
+
+.closeButton:hover {
+  color: var(--color-text-primary);
+}
+
+/* Toast types */
+.success {
+  border-color: rgba(69, 214, 160, 0.4);
+}
+.success .iconWrap {
+  background-color: rgba(69, 214, 160, 0.15);
+  color: var(--color-success);
+}
+
+.error {
+  border-color: rgba(255, 100, 124, 0.4);
+}
+.error .iconWrap {
+  background-color: rgba(255, 100, 124, 0.15);
+  color: var(--color-error);
+}
+
+.info {
+  border-color: rgba(124, 58, 237, 0.4);
+}
+.info .iconWrap {
+  background-color: rgba(124, 58, 237, 0.18);
+  color: #C084FC;
+}
+
+.warning {
+  border-color: rgba(255, 200, 87, 0.4);
+}
+.warning .iconWrap {
+  background-color: rgba(255, 200, 87, 0.18);
+  color: var(--color-gold);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    animation: none;
+  }
+}

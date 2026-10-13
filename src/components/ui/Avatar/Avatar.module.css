@@ -1,0 +1,120 @@
+.avatarContainer {
+  position: relative;
+  display: inline-flex;
+  border-radius: 50%;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+/* Sizes */
+.sm {
+  width: 32px;
+  height: 32px;
+}
+
+.md {
+  width: 42px;
+  height: 42px;
+}
+
+.lg {
+  width: 54px;
+  height: 54px;
+}
+
+.xl {
+  width: 76px;
+  height: 76px;
+}
+
+/* Rings */
+.ringLime {
+  box-shadow: 0 0 0 2px var(--color-bg-main), 0 0 0 4px var(--color-primary-action);
+}
+
+.ringPurple {
+  box-shadow: 0 0 0 2px var(--color-bg-main), 0 0 0 4px var(--color-purple);
+}
+
+.ringGold {
+  box-shadow: 0 0 0 2px var(--color-bg-main), 0 0 0 4px var(--color-gold);
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.fallback {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #191F38 0%, #292F49 100%);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-display);
+  font-weight: 700;
+  border: 1px solid var(--color-border-standard);
+}
+
+.sm .fallback {
+  font-size: 0.75rem;
+}
+
+.md .fallback {
+  font-size: 0.875rem;
+}
+
+.lg .fallback {
+  font-size: 1.125rem;
+}
+
+.xl .fallback {
+  font-size: 1.5rem;
+}
+
+/* Status indicator badge */
+.statusBadge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  border-radius: 50%;
+  border: 2px solid var(--color-bg-main);
+}
+
+.sm .statusBadge {
+  width: 8px;
+  height: 8px;
+}
+
+.md .statusBadge {
+  width: 10px;
+  height: 10px;
+}
+
+.lg .statusBadge {
+  width: 13px;
+  height: 13px;
+}
+
+.xl .statusBadge {
+  width: 16px;
+  height: 16px;
+}
+
+.statusOnline {
+  background-color: var(--color-success);
+  box-shadow: 0 0 8px rgba(69, 214, 160, 0.6);
+}
+
+.statusBusy {
+  background-color: var(--color-error);
+}
+
+.statusOffline {
+  background-color: var(--color-text-muted);
+}

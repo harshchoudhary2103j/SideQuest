@@ -1,0 +1,61 @@
+.shell {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--color-bg-main);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Background atmospheric glows */
+.shell::before {
+  content: '';
+  position: fixed;
+  top: -100px;
+  right: -50px;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, rgba(8, 11, 24, 0) 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.shell::after {
+  content: '';
+  position: fixed;
+  bottom: 40px;
+  left: -80px;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(212, 255, 56, 0.08) 0%, rgba(8, 11, 24, 0) 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.mainArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: var(--z-base);
+  min-width: 0;
+}
+
+/* Constrained content container preventing oversized desktop sprawl */
+.contentContainer {
+  flex: 1;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--space-4);
+  padding-bottom: calc(var(--bottom-nav-height) + var(--safe-area-bottom) + var(--space-6));
+}
+
+@media (min-width: 768px) {
+  .contentContainer {
+    max-width: 780px;
+    padding: var(--space-8) var(--space-6);
+    padding-bottom: var(--space-10);
+  }
+}

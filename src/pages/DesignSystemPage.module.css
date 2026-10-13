@@ -1,0 +1,142 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.tokenGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: var(--space-2);
+}
+
+.tokenCard {
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 72px;
+  border: 1px solid var(--color-border-subtle);
+  color: #FFFFFF;
+}
+
+.tokenLabel {
+  font-family: var(--font-family-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.tokenHex {
+  font-family: var(--font-family-body);
+  font-size: 0.6875rem;
+  opacity: 0.85;
+}
+
+.mascotGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: var(--space-3);
+}
+
+.mascotCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  text-align: center;
+  padding: var(--space-3);
+}
+
+.cellCaption {
+  font-family: var(--font-family-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: capitalize;
+  color: var(--color-text-secondary);
+}
+
+.evolutionGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: var(--space-3);
+}
+
+.evolutionCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--space-3);
+}
+
+.animControls {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.animDisplayCard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 280px;
+}
+
+.buttonRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.badgeRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.avatarRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-2) 0;
+}
+
+.loaderRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  padding: var(--space-2) 0;
+}
+
+.skeletonBox {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: var(--color-surface-standard);
+  border-radius: var(--radius-sm);
+}
+
+.toastTriggers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}

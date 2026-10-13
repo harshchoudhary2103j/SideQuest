@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <rect width="48" height="48" rx="14" fill="#080B18" />
+  <!-- Glowing aura -->
+  <circle cx="24" cy="24" r="16" fill="#7C3AED" fill-opacity="0.25" filter="blur(4px)" />
+  <!-- Questy cute face silhouette -->
+  <ellipse cx="24" cy="26" rx="14" ry="12" fill="#F5F6FF" />
+  <!-- Lavender blush ear horns -->
+  <path d="M12 18 C10 12, 14 10, 16 16 Z" fill="#7C3AED" />
+  <path d="M36 18 C38 12, 34 10, 32 16 Z" fill="#7C3AED" />
+  <!-- Golden Crown -->
+  <path d="M19 14 L21 17 L24 13 L27 17 L29 14 L28 19 L20 19 Z" fill="#FFC857" />
+  <!-- Violet Eyes -->
+  <ellipse cx="19" cy="25" rx="2.5" ry="3.5" fill="#4C1D95" />
+  <circle cx="18.2" cy="24" r="1" fill="#FFFFFF" />
+  <ellipse cx="29" cy="25" rx="2.5" ry="3.5" fill="#4C1D95" />
+  <circle cx="28.2" cy="24" r="1" fill="#FFFFFF" />
+  <!-- Pink Cheeks -->
+  <circle cx="15" cy="28" r="2.5" fill="#F04F9D" fill-opacity="0.6" />
+  <circle cx="33" cy="28" r="2.5" fill="#F04F9D" fill-opacity="0.6" />
+  <!-- Happy mouth -->
+  <path d="M22 28 Q24 30.5 26 28" stroke="#11162A" stroke-width="1.8" stroke-linecap="round" fill="none" />
+  <!-- Star charm hint -->
+  <path d="M24 34 L25 36.5 L27.5 37.5 L25 38.5 L24 41 L23 38.5 L20.5 37.5 L23 36.5 Z" fill="#D4FF38" />
+</svg>
