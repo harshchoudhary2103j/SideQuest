@@ -1,5 +1,6 @@
-import React from 'react';
-import { Camera, CheckCircle2, Lock, Flame } from 'lucide-react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowRight, Clock } from 'lucide-react';
 import {
   PageHeading,
   Card,
@@ -10,26 +11,26 @@ import {
   CardFooter,
   Button,
   Badge,
-  useToast,
 } from '../components/ui';
-import { MascotDisplay } from '../components/mascot/MascotDisplay';
+import { MascotDisplay } from '../components/mascot';
+import { useSquad } from '../context';
 import styles from './MissionsPage.module.css';
 
 export const MissionsPage: React.FC = () => {
-  const { showToast } = useToast();
+  const navigate = useNavigate();
+  const { missions } = useSquad();
+  const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
 
-  const handleSimulateProof = () => {
-    showToast({
-      type: 'success',
-      title: 'Legendary Proof Submitted! 📸',
-      message: 'Questy is processing your squad photo. +100 XP awarded!',
-    });
-  };
+  const filteredMissions = missions.filter((m) => {
+    if (filter === 'active') return m.status === 'available' || m.status === 'in_progress';
+    if (filter === 'completed') return m.status === 'completed' || m.status === 'submitted';
+    return true;
+  });
 
   return (
     <div className={styles.container}>
       <PageHeading
-        title="Missions"
+        title="Squad Missions"
         subtitle="Complete daily squad quests to evolve Questy"
         badge={<Badge variant="purple" size="sm">Season 1: Stardust</Badge>}
       />
@@ -42,81 +43,108 @@ export const MissionsPage: React.FC = () => {
             pose="think"
             size="medium"
             animation="think"
-            speechBubble="Hmmm... Let me take a look! 🔍"
+            speechBubble="Real life only. No fake pixels! 🔍"
           />
         </div>
         <div className={styles.briefingText}>
-          <Badge variant="lime" size="sm" dot>Mission Guide</Badge>
-          <h3 className={styles.briefingTitle}>Rules of Engagement</h3>
+          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+            <Badge variant="lime" size="sm" dot>Mission Guide</Badge>
+            <span className="text-caption">Rules of Engagement</span>
+          </div>
+          <h3 className={styles.briefingTitle}>How Squad Quests Work</h3>
           <p className={styles.briefingDesc}>
-            One quest per day. Real-life proof only. No internet images allowed — Questy will detect fake pixels!
+            One quest per day. Snap photo or video proof with your squad hand sign. Once completed, your proof gets archived into private Squad Lore!
           </p>
         </div>
       </Card>
 
-      {/* Active Mission */}
-      <section className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <h2 className="text-section-title">Today’s Quest</h2>
-          <Badge variant="lime" size="sm" icon={<Flame size={12} />}>Time Critical</Badge>
-        </div>
+      {/* Filter Tabs */}
+      <div className={styles.filterBar}>
+        <button
+          type="button"
+          className={`${styles.filterChip} ${filter === 'all' ? styles.filterChipActive : ''}`}
+          onClick={() => setFilter('all')}
+        >
+          All Quests ({missions.length})
+        </button>
+        <button
+          type="button"
+          className={`${styles.filterChip} ${filter === 'active' ? styles.filterChipActive : ''}`}
+          onClick={() => setFilter('active')}
+        >
+          Active Today
+        </button>
+        <button
+          type="button"
+          className={`${styles.filterChip} ${filter === 'completed' ? styles.filterChipActive : ''}`}
+          onClick={() => setFilter('completed')}
+        >
+          Completed Archive
+        </button>
+      </div>
 
-        <Card variant="featured" padding="lg">
-          <CardHeader>
-            <div className={styles.metaRow}>
-              <Badge variant="gold" size="sm">Daily Mission #14</Badge>
-              <span className={styles.xpReward}>+100 XP</span>
-            </div>
-            <CardTitle>Find the Weirdest Snack Under ₹50</CardTitle>
-            <CardDescription>
-              Hunt down the most unexpectedly flavored, oddly packaged, or wildly delicious street snack within your area.
-            </CardDescription>
-          </CardHeader>
+      {/* Missions List */}
+      <section className={styles.missionsGrid}>
+        {filteredMissions.map((mission) => {
+          const isCompleted = mission.status === 'completed' || mission.status === 'submitted';
+          const isLocked = mission.id === 'sunset-silhouette' && mission.status === 'in_progress';
 
-          <CardContent>
-            <div className={styles.objectivesBox}>
-              <div className={styles.objectiveItem}>
-                <CheckCircle2 size={16} color="#45D6A0" />
-                <span>Must cost ₹50 or less</span>
-              </div>
-              <div className={styles.objectiveItem}>
-                <CheckCircle2 size={16} color="#45D6A0" />
-                <span>Must show the packaging and squad member hand</span>
-              </div>
-            </div>
-          </CardContent>
-
-          <CardFooter>
-            <Button
-              variant="primary"
-              size="md"
-              fullWidth
-              leftIcon={<Camera size={18} />}
-              onClick={handleSimulateProof}
+          return (
+            <Card
+              key={mission.id}
+              variant={isCompleted ? 'standard' : 'interactive'}
+              padding="lg"
+              onClick={() => navigate(`/app/missions/${mission.id}`)}
+              className={styles.missionCard}
             >
-              Submit Photo Proof
-            </Button>
-          </CardFooter>
-        </Card>
-      </section>
+              <CardHeader>
+                <div className={styles.metaRow}>
+                  <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                    <Badge variant={isCompleted ? 'success' : 'gold'} size="sm">
+                      {isCompleted ? 'Completed' : mission.category.toUpperCase()}
+                    </Badge>
+                    <Badge variant="neutral" size="sm">{mission.difficulty.toUpperCase()}</Badge>
+                  </div>
+                  <span className={styles.xpReward}>+{mission.xpReward} XP</span>
+                </div>
 
-      {/* Upcoming / Locked Quest */}
-      <section className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <h2 className="text-section-title">Upcoming</h2>
-        </div>
+                <CardTitle>{mission.title}</CardTitle>
+                <CardDescription>{mission.description}</CardDescription>
+              </CardHeader>
 
-        <Card variant="standard" padding="md" className={styles.lockedCard}>
-          <div className={styles.lockedHeader}>
-            <div className={styles.lockIconWrap}>
-              <Lock size={18} />
-            </div>
-            <div>
-              <h3 className={styles.lockedTitle}>The Golden Hour Silhouette</h3>
-              <p className={styles.lockedDesc}>Unlocks tomorrow at 6:00 AM</p>
-            </div>
-          </div>
-        </Card>
+              <CardContent>
+                <div className={styles.cardInfoRow}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Clock size={14} color="#A4ABC4" />
+                    <span className="text-caption">{mission.deadlineText}</span>
+                  </div>
+                  <span className="text-caption">
+                    {mission.squadSubmissions.length > 0
+                      ? `${mission.squadSubmissions.length} squad proofs dropped`
+                      : 'Be the first to submit'}
+                  </span>
+                </div>
+              </CardContent>
+
+              <CardFooter>
+                <span className="text-caption">
+                  {isCompleted ? '✓ Verified in Squad Lore' : isLocked ? 'Upcoming Quest' : 'Action Required'}
+                </span>
+                <Button
+                  variant={isCompleted ? 'secondary' : 'primary'}
+                  size="sm"
+                  rightIcon={<ArrowRight size={16} />}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/app/missions/${mission.id}`);
+                  }}
+                >
+                  {isCompleted ? 'View Proof' : isLocked ? 'Preview' : 'Open Mission'}
+                </Button>
+              </CardFooter>
+            </Card>
+          );
+        })}
       </section>
     </div>
   );

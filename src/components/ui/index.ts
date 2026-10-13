@@ -22,3 +22,5 @@ export { ToastProvider } from './Toast/ToastContext';
 export { type ToastContextValue } from './Toast/toastContextDef';
 export { useToast } from './Toast/useToast';
 export { PageHeading, type PageHeadingProps } from './PageHeading/PageHeading';
+export { Input, type InputProps } from './Input/Input';
+export { Modal, type ModalProps } from './Modal/Modal';

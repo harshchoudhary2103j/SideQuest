@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, Heart } from 'lucide-react';
+import { Sparkles, Heart, Search, Shield } from 'lucide-react';
 import {
   PageHeading,
   Card,
@@ -11,9 +11,11 @@ import {
   Skeleton,
   EmptyState,
   ErrorState,
+  Input,
+  Modal,
   useToast,
 } from '../components/ui';
-import { MascotDisplay } from '../components/mascot/MascotDisplay';
+import { MascotDisplay } from '../components/mascot';
 import type {
   MascotExpression,
   MascotEvolutionLevel,
@@ -40,13 +42,15 @@ export const DesignSystemPage: React.FC = () => {
   const [selectedAnim, setSelectedAnim] = useState<MascotAnimation>('idle');
   const [showEmptyDemo, setShowEmptyDemo] = useState(false);
   const [showErrorDemo, setShowErrorDemo] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [demoInputVal, setDemoInputVal] = useState('');
 
   return (
     <div className={styles.container}>
       <PageHeading
         title="Design System & Tokens"
-        subtitle="Phase 1 Visual Foundation & Questy Mascot Verification"
-        badge={<Badge variant="lime" size="sm">Phase 1 Spec</Badge>}
+        subtitle="Phase 2 High-Fidelity UI Component Library & Visual Verification"
+        badge={<Badge variant="lime" size="sm">Phase 2 Spec</Badge>}
       />
 
       {/* 1. Color Palette Tokens */}
@@ -171,7 +175,35 @@ export const DesignSystemPage: React.FC = () => {
         </Card>
       </section>
 
-      {/* 5. Shared UI Buttons */}
+      {/* 5. Inputs & Form Controls */}
+      <section className={styles.section}>
+        <div className={styles.sectionHeader}>
+          <h2 className="text-section-title">Form Controls & Modals</h2>
+          <Button variant="outline" size="sm" onClick={() => setIsModalOpen(true)}>
+            Open Test Modal
+          </Button>
+        </div>
+
+        <Card variant="standard" padding="md" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <Input
+            label="Standard Input"
+            placeholder="Type your adventurer notes..."
+            value={demoInputVal}
+            onChange={(e) => setDemoInputVal(e.target.value)}
+            helperText="Supports validation states and touch targets ≥ 48px"
+            leftIcon={<Search size={16} />}
+          />
+
+          <Input
+            label="Input with Error"
+            defaultValue="InvalidSquadCode"
+            error="Squad invite code must match format XXXX-0000"
+            leftIcon={<Shield size={16} />}
+          />
+        </Card>
+      </section>
+
+      {/* 6. Shared UI Buttons */}
       <section className={styles.section}>
         <div className={styles.sectionHeader}>
           <h2 className="text-section-title">Buttons & Loading States</h2>
@@ -205,7 +237,7 @@ export const DesignSystemPage: React.FC = () => {
         </div>
       </section>
 
-      {/* 6. Badges & Avatars */}
+      {/* 7. Badges & Avatars */}
       <section className={styles.section}>
         <h2 className="text-section-title">Badges & Avatars</h2>
         <div className={styles.badgeRow}>
@@ -226,7 +258,7 @@ export const DesignSystemPage: React.FC = () => {
         </div>
       </section>
 
-      {/* 7. Progress & Loaders */}
+      {/* 8. Progress & Loaders */}
       <section className={styles.section}>
         <h2 className="text-section-title">Progress & Loaders</h2>
         <ProgressBar value={72} label="Daily Mission Progress" showValue variant="lime" animated />
@@ -245,7 +277,7 @@ export const DesignSystemPage: React.FC = () => {
         </div>
       </section>
 
-      {/* 8. Interactive Toast Notifications */}
+      {/* 9. Interactive Toast Notifications */}
       <section className={styles.section}>
         <h2 className="text-section-title">Interactive Toasts</h2>
         <div className={styles.toastTriggers}>
@@ -304,7 +336,7 @@ export const DesignSystemPage: React.FC = () => {
         </div>
       </section>
 
-      {/* 9. Empty & Error States */}
+      {/* 10. Empty & Error States */}
       <section className={styles.section}>
         <div className={styles.sectionHeader}>
           <h2 className="text-section-title">Feedback States</h2>
@@ -347,6 +379,20 @@ export const DesignSystemPage: React.FC = () => {
           />
         )}
       </section>
+
+      {/* Demo Modal */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Design System Demo Dialog"
+      >
+        <p className="text-secondary" style={{ fontSize: '0.875rem' }}>
+          This modal dialog demonstrates accessible overlay behavior, backdrop blur, ESC key dismiss, and focus entrapment.
+        </p>
+        <Button variant="primary" size="md" fullWidth onClick={() => setIsModalOpen(false)}>
+          Got It!
+        </Button>
+      </Modal>
     </div>
   );
 };

@@ -90,7 +90,7 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: var(--space-4);
+  gap: var(--space-3);
 }
 
 .stageMascotWrap {
@@ -101,7 +101,7 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  max-width: 380px;
+  max-width: 400px;
 }
 
 .stageName {
@@ -122,7 +122,7 @@
   font-family: var(--font-family-body);
   font-size: 0.8125rem;
   color: var(--color-text-secondary);
-  line-height: 1.4;
+  line-height: 1.45;
 }
 
 .stageSelectorRow {
@@ -130,10 +130,12 @@
   align-items: center;
   gap: var(--space-2);
   margin-top: var(--space-2);
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .levelButton {
-  min-width: 52px;
+  min-width: 58px;
   min-height: 40px;
   padding: 6px 12px;
   border-radius: var(--radius-button);
@@ -157,4 +159,63 @@
   color: var(--color-text-action);
   border-color: var(--color-primary-action);
   box-shadow: var(--glow-lime);
+}
+
+/* Invite Share Box */
+.inviteShareBox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-surface-raised);
+  border-radius: var(--radius-sm);
+  border: 1px dashed rgba(255, 200, 87, 0.4);
+}
+
+.codeTextGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.codeNumber {
+  font-family: var(--font-family-display);
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--color-primary-action);
+  letter-spacing: 0.06em;
+}
+
+/* Roster List */
+.rosterList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.rosterItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.rosterItem:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.rosterMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.rosterXp {
+  font-family: var(--font-family-display);
+  font-size: 0.8125rem;
+  font-weight: 800;
+  color: var(--color-gold);
 }

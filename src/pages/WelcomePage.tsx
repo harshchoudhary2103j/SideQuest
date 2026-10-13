@@ -1,14 +1,29 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, ArrowRight, ShieldCheck } from 'lucide-react';
-import { Button } from '../components/ui/Button/Button';
-import { Card } from '../components/ui/Card/Card';
-import { Badge } from '../components/ui/Badge/Badge';
-import { MascotDisplay } from '../components/mascot/MascotDisplay';
+import { Sparkles, ArrowRight, UserCheck, Shield, Users } from 'lucide-react';
+import { Button, Card, Badge, Modal, Input, useToast } from '../components/ui';
+import { MascotDisplay } from '../components/mascot';
+import { useSquad } from '../context';
 import styles from './WelcomePage.module.css';
 
 export const WelcomePage: React.FC = () => {
   const navigate = useNavigate();
+  const { squad } = useSquad();
+  const { showToast } = useToast();
+
+  const [isSignInOpen, setIsSignInOpen] = useState(false);
+  const [signInHandle, setSignInHandle] = useState('@alex_t');
+
+  const handleDemoSignIn = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSignInOpen(false);
+    showToast({
+      type: 'success',
+      title: 'Welcome Back, Adventurer! ✨',
+      message: `Signed in as ${signInHandle} with ${squad.name}.`,
+    });
+    navigate('/app/squad');
+  };
 
   return (
     <div className={styles.container}>
@@ -26,7 +41,7 @@ export const WelcomePage: React.FC = () => {
             expression="excited"
             size="large"
             animation="float"
-            speechBubble="A new mission awaits! 🚀"
+            speechBubble="Same friends. New adventures! 🚀"
           />
         </div>
 
@@ -37,7 +52,7 @@ export const WelcomePage: React.FC = () => {
             <span className={styles.gradientHighlight}>New adventures.</span>
           </h1>
           <p className={styles.tagline}>
-            A mischievous, lovable companion that turns your squad’s everyday moments into legendary real-life quests.
+            A private, friend-group challenge game with an evolving AI spirit. Complete daily real-life quests and preserve your squad lore.
           </p>
 
           <div className={styles.pillsRow}>
@@ -53,15 +68,22 @@ export const WelcomePage: React.FC = () => {
           <div className={styles.featureItem}>
             <span className={styles.featureIcon}>🗺️</span>
             <div>
-              <h3 className={styles.featureTitle}>Daily Real-Life Quests</h3>
-              <p className={styles.featureDesc}>Spontaneous mini-missions tailored for your squad.</p>
+              <h3 className={styles.featureTitle}>Daily Real-World Missions</h3>
+              <p className={styles.featureDesc}>Spontaneous mini-quests built for your inner circle.</p>
             </div>
           </div>
           <div className={styles.featureItem}>
             <span className={styles.featureIcon}>⭐</span>
             <div>
-              <h3 className={styles.featureTitle}>Shared Squad Mascot</h3>
-              <p className={styles.featureDesc}>Level up Questy together from Star Pup to Legendary.</p>
+              <h3 className={styles.featureTitle}>Shared Squad Mascot: Questy</h3>
+              <p className={styles.featureDesc}>Level up your shared creature together from Star Pup to Legendary.</p>
+            </div>
+          </div>
+          <div className={styles.featureItem}>
+            <span className={styles.featureIcon}>📸</span>
+            <div>
+              <h3 className={styles.featureTitle}>Private Squad Lore Vault</h3>
+              <p className={styles.featureDesc}>Collect funny memories, polaroids, and AI commentary.</p>
             </div>
           </div>
         </Card>
@@ -73,22 +95,54 @@ export const WelcomePage: React.FC = () => {
             size="lg"
             fullWidth
             rightIcon={<ArrowRight size={18} />}
-            onClick={() => navigate('/app/squad')}
+            onClick={() => navigate('/onboarding')}
           >
-            Launch Squad App
+            Get Started (Squad Setup)
           </Button>
 
           <Button
             variant="secondary"
             size="md"
             fullWidth
-            leftIcon={<ShieldCheck size={18} />}
-            onClick={() => navigate('/onboarding')}
+            leftIcon={<UserCheck size={18} />}
+            onClick={() => setIsSignInOpen(true)}
           >
-            How SideQuest Works
+            Sign In with Squad Code
           </Button>
         </div>
       </main>
+
+      {/* Demo Sign In Modal */}
+      <Modal
+        isOpen={isSignInOpen}
+        onClose={() => setIsSignInOpen(false)}
+        title="Sign In to Your Squad"
+      >
+        <form onSubmit={handleDemoSignIn} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <p className="text-secondary" style={{ fontSize: '0.875rem' }}>
+            Enter your adventurer handle and squad code to rejoin your active squad session.
+          </p>
+
+          <Input
+            label="Adventurer Handle"
+            value={signInHandle}
+            onChange={(e) => setSignInHandle(e.target.value)}
+            required
+            leftIcon={<Users size={16} />}
+          />
+
+          <Input
+            label="Squad Invite Code"
+            defaultValue={squad.inviteCode}
+            helperText="Demo code for The Chaos Crew"
+            leftIcon={<Shield size={16} />}
+          />
+
+          <Button type="submit" variant="primary" size="md" fullWidth>
+            Enter Squad Base
+          </Button>
+        </form>
+      </Modal>
     </div>
   );
 };

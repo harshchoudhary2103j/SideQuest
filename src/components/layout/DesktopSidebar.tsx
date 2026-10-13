@@ -1,7 +1,9 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { Shield, Compass, BookOpen, User, Palette, Crown } from 'lucide-react';
-import { MascotDisplay } from '../mascot/MascotDisplay';
+import { MascotDisplay } from '../mascot';
+import { useSquad } from '../../context';
+import { getEvolutionStageInfo } from '../mascot/mascotRegistry';
 import styles from './DesktopSidebar.module.css';
 
 interface NavRoute {
@@ -19,6 +21,9 @@ const NAV_ITEMS: NavRoute[] = [
 ];
 
 export const DesktopSidebar: React.FC = () => {
+  const { squad } = useSquad();
+  const stageInfo = getEvolutionStageInfo(squad.evolutionLevel);
+
   return (
     <aside className={styles.sidebar} aria-label="Desktop Navigation">
       <NavLink to="/app/squad" className={styles.brand}>
@@ -52,11 +57,18 @@ export const DesktopSidebar: React.FC = () => {
       {/* Squad Mascot Status Pill */}
       <div className={styles.squadMiniCard}>
         <div className={styles.mascotThumb}>
-          <MascotDisplay expression="excited" size="small" animation="idle" />
+          <MascotDisplay
+            evolutionLevel={squad.evolutionLevel}
+            expression="excited"
+            size="small"
+            animation="idle"
+          />
         </div>
         <div className={styles.squadInfo}>
-          <span className={styles.squadName}>Chaos Squad</span>
-          <span className={styles.squadStats}>★ Lv.1 Star Pup • 150 XP</span>
+          <span className={styles.squadName}>{squad.name}</span>
+          <span className={styles.squadStats}>
+            ★ Lv.{squad.evolutionLevel} {stageInfo.name} • {squad.currentXp} XP
+          </span>
         </div>
       </div>
     </aside>

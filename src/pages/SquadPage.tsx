@@ -1,39 +1,45 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, ArrowRight, Flame, Heart } from 'lucide-react';
+import { Sparkles, ArrowRight, Flame, Heart, Copy, UserPlus, Clock, Camera } from 'lucide-react';
 import {
   PageHeading,
   Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
   CardFooter,
   Button,
   Badge,
   Avatar,
   ProgressBar,
+  Modal,
   useToast,
 } from '../components/ui';
-import { MascotDisplay } from '../components/mascot/MascotDisplay';
+import { MascotDisplay } from '../components/mascot';
+import { useSquad } from '../context';
 import type { MascotAnimation, MascotExpression } from '../types/mascot';
 import styles from './SquadPage.module.css';
 
 export const SquadPage: React.FC = () => {
   const navigate = useNavigate();
+  const { squad, missions, activity, petQuesty } = useSquad();
   const { showToast } = useToast();
+
   const [mascotAnim, setMascotAnim] = useState<MascotAnimation>('idle');
   const [mascotExpr, setMascotExpr] = useState<MascotExpression>('excited');
   const [heartsCount, setHeartsCount] = useState(42);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+
+  // Active mission
+  const activeMission = missions.find((m) => m.id === 'snack-heist') || missions[0];
 
   const handlePetQuesty = () => {
     setMascotAnim('celebrate');
     setMascotExpr('happy');
     setHeartsCount((prev) => prev + 1);
+    petQuesty();
+
     showToast({
       type: 'success',
       title: 'Questy is thrilled! ✨',
-      message: 'Questy loves squad headpats. +5 Morale XP!',
+      message: 'Questy loves squad headpats. +5 Morale XP added!',
     });
 
     setTimeout(() => {
@@ -42,130 +48,234 @@ export const SquadPage: React.FC = () => {
     }, 2000);
   };
 
+  const handleCopyInviteCode = () => {
+    navigator.clipboard?.writeText(squad.inviteCode);
+    showToast({
+      type: 'success',
+      title: 'Demo Invite Code Copied! 📋',
+      message: `Code: ${squad.inviteCode} copied to clipboard. Share with your friend group!`,
+    });
+    setIsInviteModalOpen(false);
+  };
+
   return (
     <div className={styles.container}>
       {/* Page Header */}
       <PageHeading
-        title="Chaos Crew"
-        subtitle="Level 1 Squad • 4 Members Active"
+        title={squad.name}
+        subtitle={`Level ${squad.level} Squad • ${squad.members.length} Members Active`}
         badge={
           <Badge variant="lime" size="sm" icon={<Flame size={12} />}>
-            7 Day Streak
+            {squad.streakDays} Day Streak
           </Badge>
         }
         actions={
-          <div className={styles.avatarGroup}>
-            <Avatar name="Alex" size="sm" status="online" ring="lime" />
-            <Avatar name="Ria" size="sm" status="online" ring="purple" />
-            <Avatar name="Sam" size="sm" status="busy" ring="none" />
-            <Avatar name="Kavya" size="sm" status="online" ring="gold" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div className={styles.avatarGroup}>
+              {squad.members.map((m) => (
+                <Avatar
+                  key={m.id}
+                  name={m.name}
+                  size="sm"
+                  status={m.status}
+                  ring={m.avatarRing}
+                />
+              ))}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              leftIcon={<UserPlus size={14} />}
+              onClick={() => setIsInviteModalOpen(true)}
+            >
+              Invite
+            </Button>
           </div>
         }
       />
 
-      {/* Shared Mascot Showcase Card */}
-      <Card variant="featured" padding="lg" className={styles.mascotCard}>
-        <div className={styles.mascotCenter}>
-          <MascotDisplay
-            expression={mascotExpr}
-            evolutionLevel={1}
-            size="large"
-            animation={mascotAnim}
-            speechBubble="Find the weirdest snack under ₹50! 🥟"
-            showStageBadge
-          />
-        </div>
-
-        <div className={styles.xpSection}>
-          <ProgressBar
-            value={180}
-            max={300}
-            label="Squad XP to Lv.2 Glow Buddy"
-            showValue
-            variant="gradient"
-            size="md"
-            animated
-          />
-        </div>
-
-        <div className={styles.mascotActions}>
-          <Button
-            variant="secondary"
-            size="sm"
-            leftIcon={<Heart size={16} color="#F04F9D" />}
-            onClick={handlePetQuesty}
-          >
-            Pet Questy ({heartsCount})
-          </Button>
-
-          <Button
-            variant="outline"
-            size="sm"
-            leftIcon={<Sparkles size={16} color="#D4FF38" />}
-            onClick={() => navigate('/app/lore')}
-          >
-            View Memories
-          </Button>
-        </div>
-      </Card>
-
-      {/* Active Daily Mission Card */}
+      {/* 1. Today's Action Hero Card (Highest Priority) */}
       <section className={styles.section}>
         <div className={styles.sectionHeader}>
-          <h2 className="text-section-title">Today’s Mission</h2>
-          <Badge variant="lime" size="sm">Active</Badge>
+          <h2 className="text-section-title">Today’s Quest</h2>
+          <Badge variant="lime" size="sm">Action Required</Badge>
         </div>
 
-        <Card variant="interactive" padding="md" onClick={() => navigate('/app/missions')}>
-          <CardHeader>
-            <div className={styles.missionMetaRow}>
+        <Card
+          variant="interactive"
+          padding="lg"
+          onClick={() => navigate(`/app/missions/${activeMission.id}`)}
+          className={styles.todaysActionCard}
+        >
+          <div className={styles.missionTopRow}>
+            <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
               <Badge variant="gold" size="sm">Daily Quest</Badge>
-              <span className={styles.xpTag}>+100 XP</span>
+              <Badge variant="purple" size="sm">{activeMission.difficulty.toUpperCase()}</Badge>
             </div>
-            <CardTitle>The Midnight Snack Heist</CardTitle>
-            <CardDescription>
-              Find the weirdest food or snack combo within walking distance and upload visual proof.
-            </CardDescription>
-          </CardHeader>
+            <span className={styles.xpTag}>+{activeMission.xpReward} XP</span>
+          </div>
 
-          <CardContent>
-            <div className={styles.proofStatusRow}>
-              <span className={styles.proofText}>Squad Submissions: 2 of 4 ready</span>
-              <div className={styles.miniAvatars}>
-                <Avatar name="Alex" size="sm" status="online" ring="lime" />
-                <Avatar name="Ria" size="sm" status="online" ring="lime" />
-              </div>
+          <div>
+            <h3 className={styles.missionBigTitle}>{activeMission.title}</h3>
+            <p className={styles.missionShortDesc}>{activeMission.description}</p>
+          </div>
+
+          <div className={styles.proofStatusRow}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Clock size={16} color="#A4ABC4" />
+              <span className={styles.timeLeft}>{activeMission.deadlineText}</span>
             </div>
-          </CardContent>
+            <span className={styles.proofText}>
+              {activeMission.squadSubmissions.length} of {squad.members.length} submitted
+            </span>
+          </div>
 
-          <CardFooter>
-            <span className={styles.timeLeft}>Ends in 5h 24m</span>
-            <Button variant="primary" size="sm" rightIcon={<ArrowRight size={16} />}>
-              Open Mission
+          <CardFooter style={{ marginTop: '8px', paddingBottom: 0 }}>
+            <span className="text-caption">Click to view rules & drop photo proof</span>
+            <Button
+              variant="primary"
+              size="md"
+              leftIcon={<Camera size={16} />}
+              rightIcon={<ArrowRight size={16} />}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/app/missions/${activeMission.id}`);
+              }}
+            >
+              Start Mission
             </Button>
           </CardFooter>
         </Card>
       </section>
 
-      {/* Squad Lore Quick Teaser */}
+      {/* 2. Shared Mascot Showcase & Squad Progress Card */}
+      <section className={styles.section}>
+        <div className={styles.sectionHeader}>
+          <h2 className="text-section-title">Squad Companion</h2>
+          <Badge variant="purple" size="sm">Questy</Badge>
+        </div>
+
+        <Card variant="featured" padding="lg" className={styles.mascotCard}>
+          <div className={styles.mascotCenter}>
+            <MascotDisplay
+              expression={mascotExpr}
+              evolutionLevel={squad.evolutionLevel}
+              size="large"
+              animation={mascotAnim}
+              speechBubble={activeMission.briefingSpeech}
+              showStageBadge
+            />
+          </div>
+
+          <div className={styles.xpSection}>
+            <ProgressBar
+              value={squad.currentXp}
+              max={squad.targetXp}
+              label={`Squad XP: ${squad.currentXp} / ${squad.targetXp} XP`}
+              showValue
+              variant="gradient"
+              size="md"
+              animated
+            />
+          </div>
+
+          <div className={styles.mascotActions}>
+            <Button
+              variant="secondary"
+              size="sm"
+              leftIcon={<Heart size={16} color="#F04F9D" />}
+              onClick={handlePetQuesty}
+            >
+              Pet Questy ({heartsCount})
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              leftIcon={<Sparkles size={16} color="#D4FF38" />}
+              onClick={() => navigate('/app/profile')}
+            >
+              Evolution Vault
+            </Button>
+          </div>
+        </Card>
+      </section>
+
+      {/* 3. Recent Squad Activity Stream */}
+      <section className={styles.section}>
+        <div className={styles.sectionHeader}>
+          <h2 className="text-section-title">Live Squad Activity</h2>
+          <span className="text-caption">Private feed</span>
+        </div>
+
+        <Card variant="standard" padding="md">
+          <div className={styles.activityFeed}>
+            {activity.slice(0, 4).map((act) => (
+              <div key={act.id} className={styles.activityItem}>
+                <Avatar name={act.memberName} size="sm" ring="none" />
+                <div className={styles.actInfo}>
+                  <p className={styles.actContent}>
+                    <strong>{act.memberName}</strong> {act.content}
+                  </p>
+                  <span className={styles.actTime}>{act.timeAgo}</span>
+                </div>
+                {act.xpEarned && (
+                  <Badge variant="gold" size="sm">+{act.xpEarned} XP</Badge>
+                )}
+              </div>
+            ))}
+          </div>
+        </Card>
+      </section>
+
+      {/* 4. Squad Lore Highlights Teaser */}
       <section className={styles.section}>
         <div className={styles.sectionHeader}>
           <h2 className="text-section-title">Latest Squad Lore</h2>
           <span className={styles.viewAllLink} onClick={() => navigate('/app/lore')}>
-            Vault →
+            Vault Archive →
           </span>
         </div>
 
-        <Card variant="standard" padding="md">
+        <Card variant="standard" padding="md" onClick={() => navigate('/app/lore')} style={{ cursor: 'pointer' }}>
           <div className={styles.loreSnippet}>
-            <span className={styles.loreEmoji}>📸</span>
+            <span className={styles.loreEmoji}>🥟</span>
             <div className={styles.loreInfo}>
               <h4 className={styles.loreTitle}>The 2 AM Paratha Expedition</h4>
               <p className={styles.loreQuote}>“Another iconic memory for the books! 💜” — Questy</p>
             </div>
+            <ArrowRight size={18} color="#A4ABC4" />
           </div>
         </Card>
       </section>
+
+      {/* Invite Squad Mates Modal */}
+      <Modal
+        isOpen={isInviteModalOpen}
+        onClose={() => setIsInviteModalOpen(false)}
+        title="Invite Squad Mates"
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', textAlign: 'left' }}>
+          <p className="text-secondary" style={{ fontSize: '0.875rem' }}>
+            Share this demo invite code with up to 5 friends to unlock shared quests and evolutions together.
+          </p>
+
+          <div className={styles.inviteCodeDisplay}>
+            <span className={styles.codeText}>{squad.inviteCode}</span>
+            <Badge variant="gold" size="sm">Active Code</Badge>
+          </div>
+
+          <Button
+            variant="primary"
+            size="md"
+            fullWidth
+            leftIcon={<Copy size={16} />}
+            onClick={handleCopyInviteCode}
+          >
+            Copy Invite Code
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 };

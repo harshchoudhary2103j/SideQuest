@@ -5,6 +5,8 @@ import {
   OnboardingPage,
   SquadPage,
   MissionsPage,
+  MissionDetailPage,
+  MissionResultPage,
   LorePage,
   ProfilePage,
   DesignSystemPage,
@@ -39,6 +41,14 @@ export const router = createBrowserRouter([
       {
         path: 'missions',
         element: <MissionsPage />,
+      },
+      {
+        path: 'missions/:missionId',
+        element: <MissionDetailPage />,
+      },
+      {
+        path: 'missions/:missionId/result',
+        element: <MissionResultPage />,
       },
       {
         path: 'lore',

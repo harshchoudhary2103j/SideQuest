@@ -32,19 +32,50 @@
   font-family: var(--font-family-body);
   font-size: 0.8125rem;
   color: var(--color-text-secondary);
-  line-height: 1.4;
+  line-height: 1.45;
 }
 
-.section {
+/* Filter Chips */
+.filterBar {
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.filterChip {
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-pill);
+  padding: 6px 14px;
+  color: var(--color-text-secondary);
+  font-family: var(--font-family-display);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+}
+
+.filterChip:hover {
+  color: var(--color-text-primary);
+  border-color: var(--color-border-standard);
+}
+
+.filterChipActive {
+  background-color: rgba(212, 255, 56, 0.15);
+  color: var(--color-primary-action);
+  border-color: var(--color-primary-action);
+}
+
+.missionsGrid {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 
-.sectionHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.missionCard {
+  transition: transform var(--transition-fast), border-color var(--transition-fast);
 }
 
 .metaRow {
@@ -56,61 +87,15 @@
 
 .xpReward {
   font-family: var(--font-family-display);
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   font-weight: 800;
   color: var(--color-gold);
 }
 
-.objectivesBox {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  background-color: var(--color-surface-raised);
-  border-radius: var(--radius-sm);
-  padding: var(--space-3);
-  margin-top: var(--space-2);
-}
-
-.objectiveItem {
+.cardInfoRow {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  font-family: var(--font-family-body);
-  font-size: 0.8125rem;
-  color: var(--color-text-primary);
-}
-
-.lockedCard {
-  opacity: 0.65;
-  border-style: dashed;
-}
-
-.lockedHeader {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-}
-
-.lockIconWrap {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-sm);
-  background: var(--color-surface-raised);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-text-muted);
-}
-
-.lockedTitle {
-  font-family: var(--font-family-display);
-  font-size: 0.9375rem;
-  font-weight: 700;
-  color: var(--color-text-primary);
-}
-
-.lockedDesc {
-  font-family: var(--font-family-body);
-  font-size: 0.75rem;
-  color: var(--color-text-muted);
+  justify-content: space-between;
+  padding: var(--space-2) 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
