@@ -1,7 +1,9 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { AppShell } from '../components/layout';
+import { ProtectedRoute } from '../components/auth';
 import {
   WelcomePage,
+  AuthPage,
   OnboardingPage,
   SquadPage,
   MissionsPage,
@@ -23,12 +25,20 @@ export const router = createBrowserRouter([
     element: <WelcomePage />,
   },
   {
+    path: '/auth',
+    element: <AuthPage />,
+  },
+  {
     path: '/onboarding',
     element: <OnboardingPage />,
   },
   {
     path: '/app',
-    element: <AppShell />,
+    element: (
+      <ProtectedRoute>
+        <AppShell />
+      </ProtectedRoute>
+    ),
     children: [
       {
         index: true,

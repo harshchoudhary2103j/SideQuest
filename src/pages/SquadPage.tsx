@@ -13,13 +13,14 @@ import {
   useToast,
 } from '../components/ui';
 import { MascotDisplay } from '../components/mascot';
-import { useSquad } from '../context';
+import { useSquad, useAuth } from '../context';
 import type { MascotAnimation, MascotExpression } from '../types/mascot';
 import styles from './SquadPage.module.css';
 
 export const SquadPage: React.FC = () => {
   const navigate = useNavigate();
-  const { squad, missions, activity, petQuesty } = useSquad();
+  const { squad, missions, activity, petQuesty, hasSquad, isLoadingSquad } = useSquad();
+  const { user } = useAuth();
   const { showToast } = useToast();
 
   const [mascotAnim, setMascotAnim] = useState<MascotAnimation>('idle');
@@ -52,11 +53,53 @@ export const SquadPage: React.FC = () => {
     navigator.clipboard?.writeText(squad.inviteCode);
     showToast({
       type: 'success',
-      title: 'Demo Invite Code Copied! 📋',
+      title: 'Squad Invite Code Copied! 📋',
       message: `Code: ${squad.inviteCode} copied to clipboard. Share with your friend group!`,
     });
     setIsInviteModalOpen(false);
   };
+
+  if (isLoadingSquad) {
+    return (
+      <div className={styles.container} style={{ minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
+        <MascotDisplay expression="excited" size="medium" animation="float" speechBubble="Loading squad base... ⚡" />
+        <span className="text-caption">Connecting to Supabase squad vault...</span>
+      </div>
+    );
+  }
+
+  if (user && !hasSquad) {
+    return (
+      <div className={styles.container}>
+        <PageHeading
+          title="Squad Base"
+          subtitle="Assemble your inner circle"
+          badge={<Badge variant="lime" size="sm">No Active Squad</Badge>}
+        />
+        <div style={{ margin: '32px 0', display: 'flex', justifyContent: 'center' }}>
+          <MascotDisplay expression="sleepy" size="large" animation="idle" speechBubble="I don't have a squad yet! 🐾" />
+        </div>
+        <Card variant="featured" padding="lg">
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '16px' }}>
+            <h2 className="text-section-title">Ready to Start Adventuring?</h2>
+            <p className="text-caption" style={{ maxWidth: '420px', lineHeight: 1.6 }}>
+              SideQuest connects you with real-life friends. Create your own private squad or enter an invite code to begin completing daily quests with Questy!
+            </p>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
+              <Button
+                variant="primary"
+                size="lg"
+                leftIcon={<UserPlus size={18} />}
+                onClick={() => navigate('/onboarding')}
+              >
+                Create or Join Squad
+              </Button>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>

@@ -1,59 +1,78 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ChevronRight, Users, PlusCircle, CheckCircle2, Shield } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Users, PlusCircle, CheckCircle2, Shield, Loader2 } from 'lucide-react';
 import { Button, Card, Badge, Avatar, Input, useToast } from '../components/ui';
 import { MascotDisplay } from '../components/mascot';
-import { useSquad } from '../context';
+import { useSquad, useAuth } from '../context';
+import { AuthModal } from '../components/auth';
 import styles from './OnboardingPage.module.css';
 
 export const OnboardingPage: React.FC = () => {
   const navigate = useNavigate();
   const { squad, createOrJoinSquad } = useSquad();
+  const { user, profile, updateProfile } = useAuth();
   const { showToast } = useToast();
 
   const [currentStep, setCurrentStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
 
-  // Step 1: Player profile state
-  const [userName, setUserName] = useState('Alex Thorne');
-  const [userHandle, setUserHandle] = useState('@alex_t');
-  const [avatarRing, setAvatarRing] = useState<'lime' | 'purple' | 'gold'>('lime');
+  // Derive initial adventurer identity
+  const [customName, setCustomName] = useState<string | null>(null);
+  const [customHandle, setCustomHandle] = useState<string | null>(null);
+  const [customRing, setCustomRing] = useState<'lime' | 'purple' | 'gold' | null>(null);
+
+  const userName =
+    customName !== null
+      ? customName
+      : profile?.display_name || user?.user_metadata?.display_name || (user?.email ? user.email.split('@')[0] : 'Alex Thorne');
+
+  const userHandle =
+    customHandle !== null
+      ? customHandle
+      : user?.email ? `@${user.email.split('@')[0]}` : '@alex_t';
+
+  const avatarRing: 'lime' | 'purple' | 'gold' =
+    customRing !== null
+      ? customRing
+      : (profile?.aura && ['lime', 'purple', 'gold'].includes(profile.aura))
+      ? (profile.aura as 'lime' | 'purple' | 'gold')
+      : 'lime';
+
+  const setUserName = (val: string) => setCustomName(val);
+  const setUserHandle = (val: string) => setCustomHandle(val);
+  const setAvatarRing = (val: 'lime' | 'purple' | 'gold') => setCustomRing(val);
+
 
   // Step 3: Squad state
   const [squadMode, setSquadMode] = useState<'create' | 'join'>('create');
   const [newSquadName, setNewSquadName] = useState('The Chaos Crew');
   const [newSquadMotto, setNewSquadMotto] = useState('Always up for spontaneous trouble.');
-  const [joinCode, setJoinCode] = useState('CHAOS-7729');
+  const [joinCode, setJoinCode] = useState('');
   const [inputError, setInputError] = useState<string | null>(null);
 
-  const handleNext = () => {
+  const executeSquadCreationOrJoin = async () => {
+    setIsSubmitting(true);
     setInputError(null);
 
-    if (currentStep === 1) {
-      if (!userName.trim()) {
-        setInputError('Please enter a display name for your adventurer.');
-        return;
-      }
-      setCurrentStep(2);
-    } else if (currentStep === 2) {
-      setCurrentStep(3);
-    } else if (currentStep === 3) {
-      if (squadMode === 'create' && !newSquadName.trim()) {
-        setInputError('Please give your squad a name.');
-        return;
-      }
-      if (squadMode === 'join' && !joinCode.trim()) {
-        setInputError('Please enter a squad invite code.');
-        return;
-      }
-      setCurrentStep(4);
-    } else if (currentStep === 4) {
-      // Save to context
-      createOrJoinSquad({
+    try {
+      const result = await createOrJoinSquad({
         userName: userName.trim(),
         squadName: squadMode === 'create' ? newSquadName.trim() : undefined,
         inviteCode: squadMode === 'join' ? joinCode.trim() : undefined,
         isCreating: squadMode === 'create',
       });
+
+      if (!result.success) {
+        setInputError(result.error || 'Failed to configure squad. Please try again.');
+        showToast({
+          type: 'error',
+          title: 'Squad Setup Failed',
+          message: result.error || 'Could not complete squad setup.',
+        });
+        setIsSubmitting(false);
+        return;
+      }
 
       showToast({
         type: 'success',
@@ -62,6 +81,68 @@ export const OnboardingPage: React.FC = () => {
       });
 
       navigate('/app/squad');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'An unexpected error occurred.';
+      setInputError(msg);
+      showToast({
+        type: 'error',
+        title: 'Error',
+        message: msg,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleNext = async () => {
+    setInputError(null);
+
+    if (currentStep === 1) {
+      if (!userName.trim()) {
+        setInputError('Please enter a display name for your adventurer.');
+        return;
+      }
+
+      // If user is authenticated, persist display name and avatar preference
+      if (user) {
+        try {
+          await updateProfile({
+            display_name: userName.trim(),
+            aura: avatarRing,
+          });
+        } catch {
+          // Non-blocking, continue flow
+        }
+      }
+
+      setCurrentStep(2);
+    } else if (currentStep === 2) {
+      setCurrentStep(3);
+    } else if (currentStep === 3) {
+      if (squadMode === 'create' && !newSquadName.trim()) {
+        setInputError('Please give your squad a name.');
+        return;
+      }
+      if (squadMode === 'join') {
+        const cleaned = joinCode.trim();
+        if (!cleaned) {
+          setInputError('Please enter a squad invite code.');
+          return;
+        }
+        if (cleaned.length < 4) {
+          setInputError('Invite codes must be at least 4 characters.');
+          return;
+        }
+      }
+      setCurrentStep(4);
+    } else if (currentStep === 4) {
+      // If user is not authenticated yet, prompt auth modal before creating or joining
+      if (!user) {
+        setIsAuthOpen(true);
+        return;
+      }
+
+      await executeSquadCreationOrJoin();
     }
   };
 
@@ -247,7 +328,7 @@ export const OnboardingPage: React.FC = () => {
                   />
                   <div className={styles.demoInvitePreview}>
                     <Shield size={16} color="#FFC857" />
-                    <span>Your generated demo invite code: <strong>CHAOS-7729</strong></span>
+                    <span>A unique squad invite code will be automatically generated upon creation.</span>
                   </div>
                 </div>
               ) : (
@@ -255,17 +336,17 @@ export const OnboardingPage: React.FC = () => {
                   <Input
                     label="Squad Invite Code"
                     value={joinCode}
-                    onChange={(e) => setJoinCode(e.target.value)}
-                    placeholder="E.g. CHAOS-7729"
+                    onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                    placeholder="E.g. SQUAD-1234"
                     required
-                    helperText="Try entering 'CHAOS-7729' to join The Chaos Crew"
+                    helperText="Enter the invite code shared by your squad leader"
                     error={inputError || undefined}
                   />
                   <div className={styles.squadPreviewBox}>
-                    <Avatar name="Chaos Crew" size="sm" ring="lime" />
+                    <Avatar name="Squad Code" size="sm" ring="lime" />
                     <div>
-                      <span className="text-body-strong">The Chaos Crew</span>
-                      <p className="text-caption">4 active members • Level 1 Star Pup</p>
+                      <span className="text-body-strong">Private Squad Portal</span>
+                      <p className="text-caption">Invites grant secure member access via PostgreSQL RLS</p>
                     </div>
                   </div>
                 </div>
@@ -285,7 +366,7 @@ export const OnboardingPage: React.FC = () => {
               <Badge variant="lime" size="sm">Step 4 of 4 • Ready!</Badge>
               <h1 className={styles.stepTitle}>Squad Portal Activated</h1>
               <p className={styles.stepDesc}>
-                You are entering <strong>{squadMode === 'create' ? newSquadName : squad.name}</strong> as <strong>{userName}</strong>. Questy is eager to begin!
+                You are entering <strong>{squadMode === 'create' ? newSquadName : 'Squad via Invite'}</strong> as <strong>{userName}</strong>. Questy is eager to begin!
               </p>
 
               <div className={styles.readySummaryBox}>
@@ -307,13 +388,29 @@ export const OnboardingPage: React.FC = () => {
             variant="primary"
             size="lg"
             fullWidth
-            rightIcon={<ChevronRight size={18} />}
+            disabled={isSubmitting}
+            leftIcon={isSubmitting ? <Loader2 size={18} /> : undefined}
+            rightIcon={!isSubmitting ? <ChevronRight size={18} /> : undefined}
             onClick={handleNext}
           >
-            {currentStep === 4 ? 'Launch Squad Base' : 'Continue'}
+            {isSubmitting
+              ? 'Activating Squad...'
+              : currentStep === 4
+              ? 'Launch Squad Base'
+              : 'Continue'}
           </Button>
         </div>
       </main>
+
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+        defaultMode="signup"
+        onSuccess={async () => {
+          setIsAuthOpen(false);
+          await executeSquadCreationOrJoin();
+        }}
+      />
     </div>
   );
 };

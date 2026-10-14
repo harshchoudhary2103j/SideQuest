@@ -275,3 +275,66 @@
   font-weight: 800;
   color: var(--color-gold);
 }
+
+/* Edit & Account Management */
+.editProfileBtn {
+  margin-left: auto;
+}
+
+.accountCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.accountDetails {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background-color: var(--color-surface-raised);
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+}
+
+.accountLabel {
+  color: var(--color-text-secondary);
+}
+
+.accountVal {
+  color: var(--color-text-primary);
+  font-weight: 600;
+  font-family: monospace;
+}
+
+.auraRow {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: 6px;
+}
+
+.auraOption {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform var(--transition-fast), border-color var(--transition-fast);
+}
+
+.auraOption:hover {
+  transform: scale(1.1);
+}
+
+.auraOptionActive {
+  border-color: #FFFFFF;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+}
+
+.modalButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+

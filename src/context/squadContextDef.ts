@@ -6,6 +6,8 @@ export interface SquadContextValue {
   missions: Mission[];
   activity: ActivityEvent[];
   lore: LoreItem[];
+  hasSquad: boolean;
+  isLoadingSquad: boolean;
   getMissionById: (id: string) => Mission | undefined;
   submitMissionProof: (
     missionId: string,
@@ -20,8 +22,9 @@ export interface SquadContextValue {
     squadName?: string;
     inviteCode?: string;
     isCreating: boolean;
-  }) => void;
+  }) => Promise<{ success: boolean; error?: string; squadId?: string }>;
   petQuesty: () => number;
+  refreshSquad: () => Promise<void>;
 }
 
 export const SquadContext = createContext<SquadContextValue | undefined>(undefined);

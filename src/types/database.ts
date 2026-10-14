@@ -53,6 +53,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       squads: {
         Row: {
@@ -82,6 +83,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       squad_memberships: {
         Row: {
@@ -105,6 +107,7 @@ export interface Database {
           role?: SquadRole;
           joined_at?: string;
         };
+        Relationships: [];
       };
       squad_progression: {
         Row: {
@@ -131,6 +134,7 @@ export interface Database {
           streak_days?: number;
           updated_at?: string;
         };
+        Relationships: [];
       };
       mission_definitions: {
         Row: {
@@ -175,6 +179,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       mission_assignments: {
         Row: {
@@ -204,6 +209,7 @@ export interface Database {
           status?: AssignmentStatus;
           created_at?: string;
         };
+        Relationships: [];
       };
       mission_submissions: {
         Row: {
@@ -242,6 +248,7 @@ export interface Database {
           submitted_at?: string;
           reviewed_at?: string | null;
         };
+        Relationships: [];
       };
       squad_lore: {
         Row: {
@@ -274,7 +281,11 @@ export interface Database {
           metadata?: Json;
           created_at?: string;
         };
+        Relationships: [];
       };
+    };
+    Views: {
+      [_ in never]: never;
     };
     Functions: {
       is_squad_member: {
@@ -291,6 +302,25 @@ export interface Database {
         };
         Returns: string | null;
       };
+      join_squad_with_code: {
+        Args: {
+          code: string;
+        };
+        Returns: string;
+      };
+    };
+    Enums: {
+      squad_role: SquadRole;
+      mission_category: MissionCategory;
+      mission_difficulty: MissionDifficulty;
+      mission_definition_status: MissionDefinitionStatus;
+      assignment_status: AssignmentStatus;
+      proof_type: ProofType;
+      submission_status: SubmissionStatus;
+      lore_event_type: LoreEventType;
+    };
+    CompositeTypes: {
+      [_ in never]: never;
     };
   };
 }

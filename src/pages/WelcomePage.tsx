@@ -1,29 +1,19 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, ArrowRight, UserCheck, Shield, Users } from 'lucide-react';
-import { Button, Card, Badge, Modal, Input, useToast } from '../components/ui';
+import { Sparkles, ArrowRight, LogIn, LogOut } from 'lucide-react';
+import { Button, Card, Badge } from '../components/ui';
 import { MascotDisplay } from '../components/mascot';
-import { useSquad } from '../context';
+import { useSquad, useAuth } from '../context';
+import { AuthModal } from '../components/auth';
 import styles from './WelcomePage.module.css';
 
 export const WelcomePage: React.FC = () => {
   const navigate = useNavigate();
   const { squad } = useSquad();
-  const { showToast } = useToast();
+  const { user, profile, signOut } = useAuth();
 
-  const [isSignInOpen, setIsSignInOpen] = useState(false);
-  const [signInHandle, setSignInHandle] = useState('@alex_t');
-
-  const handleDemoSignIn = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSignInOpen(false);
-    showToast({
-      type: 'success',
-      title: 'Welcome Back, Adventurer! ✨',
-      message: `Signed in as ${signInHandle} with ${squad.name}.`,
-    });
-    navigate('/app/squad');
-  };
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
 
   return (
     <div className={styles.container}>
@@ -90,59 +80,75 @@ export const WelcomePage: React.FC = () => {
 
         {/* Action Buttons */}
         <div className={styles.actionGroup}>
-          <Button
-            variant="primary"
-            size="lg"
-            fullWidth
-            rightIcon={<ArrowRight size={18} />}
-            onClick={() => navigate('/onboarding')}
-          >
-            Get Started (Squad Setup)
-          </Button>
+          {user ? (
+            <>
+              <div style={{ textAlign: 'center', marginBottom: '8px' }}>
+                <Badge variant="lime" size="sm">
+                  Active Session: {profile?.display_name || user.email}
+                </Badge>
+              </div>
 
-          <Button
-            variant="secondary"
-            size="md"
-            fullWidth
-            leftIcon={<UserCheck size={18} />}
-            onClick={() => setIsSignInOpen(true)}
-          >
-            Sign In with Squad Code
-          </Button>
+              <Button
+                variant="primary"
+                size="lg"
+                fullWidth
+                rightIcon={<ArrowRight size={18} />}
+                onClick={() => navigate('/app/squad')}
+              >
+                Enter Squad Base ({squad.name})
+              </Button>
+
+              <Button
+                variant="outline"
+                size="md"
+                fullWidth
+                leftIcon={<LogOut size={16} />}
+                onClick={() => signOut()}
+              >
+                Sign Out
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                variant="primary"
+                size="lg"
+                fullWidth
+                rightIcon={<ArrowRight size={18} />}
+                onClick={() => {
+                  setAuthMode('signup');
+                  setIsAuthOpen(true);
+                }}
+              >
+                Get Started (Create Account)
+              </Button>
+
+              <Button
+                variant="secondary"
+                size="md"
+                fullWidth
+                leftIcon={<LogIn size={18} />}
+                onClick={() => {
+                  setAuthMode('signin');
+                  setIsAuthOpen(true);
+                }}
+              >
+                Sign In with Email
+              </Button>
+            </>
+          )}
         </div>
       </main>
 
-      {/* Demo Sign In Modal */}
-      <Modal
-        isOpen={isSignInOpen}
-        onClose={() => setIsSignInOpen(false)}
-        title="Sign In to Your Squad"
-      >
-        <form onSubmit={handleDemoSignIn} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <p className="text-secondary" style={{ fontSize: '0.875rem' }}>
-            Enter your adventurer handle and squad code to rejoin your active squad session.
-          </p>
-
-          <Input
-            label="Adventurer Handle"
-            value={signInHandle}
-            onChange={(e) => setSignInHandle(e.target.value)}
-            required
-            leftIcon={<Users size={16} />}
-          />
-
-          <Input
-            label="Squad Invite Code"
-            defaultValue={squad.inviteCode}
-            helperText="Demo code for The Chaos Crew"
-            leftIcon={<Shield size={16} />}
-          />
-
-          <Button type="submit" variant="primary" size="md" fullWidth>
-            Enter Squad Base
-          </Button>
-        </form>
-      </Modal>
+      {/* Supabase Authentication Modal */}
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+        defaultMode={authMode}
+        onSuccess={() => {
+          navigate('/onboarding');
+        }}
+      />
     </div>
   );
 };

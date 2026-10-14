@@ -8,3 +8,4 @@ export { LorePage } from './LorePage';
 export { ProfilePage } from './ProfilePage';
 export { DesignSystemPage } from './DesignSystemPage';
 export { NotFoundPage } from './NotFoundPage';
+export { AuthPage } from './AuthPage';

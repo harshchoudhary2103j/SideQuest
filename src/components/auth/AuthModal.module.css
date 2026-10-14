@@ -1,0 +1,175 @@
+.authContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tabRow {
+  display: flex;
+  background-color: var(--color-surface-standard);
+  border-radius: var(--radius-md);
+  padding: 4px;
+  border: 1px solid var(--color-border-subtle);
+  margin-bottom: 8px;
+}
+
+.tabBtn {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  font-family: var(--font-family-body);
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.tabBtn:hover {
+  color: var(--color-text-primary);
+}
+
+.tabBtnActive {
+  background-color: var(--color-surface-raised);
+  color: var(--color-primary-action);
+  font-weight: var(--font-weight-semibold);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.errorAlert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background-color: rgba(255, 100, 124, 0.12);
+  border: 1px solid var(--color-error);
+  border-radius: var(--radius-md);
+  color: #ff94a5;
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-normal);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.fieldLabel {
+  display: block;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  margin-bottom: 6px;
+}
+
+.auraField {
+  display: flex;
+  flex-direction: column;
+}
+
+.auraGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.auraChip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background-color: var(--color-surface-standard);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  font-family: var(--font-family-body);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.auraChip:hover {
+  border-color: var(--color-purple);
+  color: var(--color-text-primary);
+}
+
+.auraChipActive {
+  border-color: var(--color-primary-action);
+  background-color: rgba(212, 255, 56, 0.08);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.auraDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.actionWrap {
+  margin-top: 8px;
+}
+
+.footerNote {
+  text-align: center;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  margin-top: 8px;
+}
+
+.linkBtn {
+  background: none;
+  border: none;
+  color: var(--color-primary-action);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.linkBtn:hover {
+  opacity: 0.85;
+}
+
+/* Confirmation Box View */
+.confirmationBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+  padding: 10px 0;
+}
+
+.mascotBox {
+  display: flex;
+  justify-content: center;
+}
+
+.noticeContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.noticeTitle {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.noticeDesc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-normal);
+  max-width: 340px;
+  margin: 0;
+}

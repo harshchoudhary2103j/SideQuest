@@ -1,6 +1,7 @@
 export * from './mascot';
 export * from './mission';
 export * from './squad';
+export * from './auth';
 export type {
   Database,
   SquadRole,
