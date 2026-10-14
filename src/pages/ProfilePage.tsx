@@ -111,14 +111,18 @@ export const ProfilePage: React.FC = () => {
 
         <Card variant="standard" padding="lg" className={styles.evolutionCard}>
           {/* Status Flag */}
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            {isUnlocked ? (
-              <Badge variant="success" size="sm" icon={<Unlock size={12} />}>
-                {previewLevel === squad.evolutionLevel ? 'Active Form' : 'Unlocked'}
+          <div className={styles.statusBannerRow}>
+            {previewLevel === squad.evolutionLevel ? (
+              <Badge variant="lime" size="sm" icon={<Flame size={12} />}>
+                Active Squad Form (Lv.{previewLevel})
+              </Badge>
+            ) : isUnlocked ? (
+              <Badge variant="purple" size="sm" icon={<Unlock size={12} />}>
+                Unlocked Archive Form (Lv.{previewLevel})
               </Badge>
             ) : (
               <Badge variant="neutral" size="sm" icon={<Lock size={12} />}>
-                Locked (Requires {STAGE_XP_THRESHOLDS[previewLevel]} XP)
+                Locked Preview • Requires {STAGE_XP_THRESHOLDS[previewLevel]} Squad XP ({Math.max(0, STAGE_XP_THRESHOLDS[previewLevel] - squad.currentXp)} XP needed)
               </Badge>
             )}
           </div>
@@ -127,11 +131,17 @@ export const ProfilePage: React.FC = () => {
             <MascotDisplay
               key={previewLevel}
               evolutionLevel={previewLevel}
-              expression={previewLevel === 5 ? 'proud' : isUnlocked ? 'happy' : 'sleepy'}
+              expression={previewLevel === squad.evolutionLevel ? 'excited' : isUnlocked ? 'happy' : 'sleepy'}
               size="large"
-              animation={isUnlocked ? 'float' : 'none'}
-              showStageBadge
-              speechBubble={activeStage.tagline}
+              animation={previewLevel === squad.evolutionLevel ? 'float' : 'none'}
+              showStageBadge={false}
+              speechBubble={
+                previewLevel === squad.evolutionLevel
+                  ? activeStage.tagline
+                  : isUnlocked
+                  ? activeStage.tagline
+                  : `Locked: Unlocks at ${STAGE_XP_THRESHOLDS[previewLevel]} Squad XP 🔒`
+              }
             />
           </div>
 
@@ -139,29 +149,62 @@ export const ProfilePage: React.FC = () => {
             <h3 className={styles.stageName}>Level {activeStage.level}: {activeStage.name}</h3>
             <p className={styles.stageTagline}>“{activeStage.tagline}”</p>
             <p className={styles.stageDesc}>{activeStage.description}</p>
+
+            {!isUnlocked && (
+              <div className={styles.lockedNotice}>
+                <Lock size={14} color="#FFC857" style={{ flexShrink: 0 }} />
+                <span>
+                  <strong>Preview Only:</strong> Locked stages cannot become your active squad companion until unlocked through real-world quests. Complete missions to earn XP!
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Level Switcher Selector */}
           <div className={styles.stageSelectorRow}>
             {([1, 2, 3, 4, 5] as MascotEvolutionLevel[]).map((lvl) => {
               const unlocked = lvl <= squad.evolutionLevel;
+              const isCurrentForm = lvl === squad.evolutionLevel;
+              const isSelected = lvl === previewLevel;
+
+              let btnClass = styles.levelButton;
+              if (isSelected) {
+                if (isCurrentForm) {
+                  btnClass = `${styles.levelButton} ${styles.levelButtonCurrent}`;
+                } else if (unlocked) {
+                  btnClass = `${styles.levelButton} ${styles.levelButtonUnlockedActive}`;
+                } else {
+                  btnClass = `${styles.levelButton} ${styles.levelButtonLockedActive}`;
+                }
+              }
+
               return (
                 <button
                   key={lvl}
                   type="button"
-                  className={`${styles.levelButton} ${lvl === previewLevel ? styles.levelButtonActive : ''}`}
+                  className={btnClass}
                   onClick={() => setPreviewLevel(lvl)}
+                  title={
+                    isCurrentForm
+                      ? 'Current Active Squad Form'
+                      : unlocked
+                      ? `Unlocked Stage ${lvl}`
+                      : `Locked Stage ${lvl} (Requires ${STAGE_XP_THRESHOLDS[lvl]} XP)`
+                  }
                 >
                   <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                     {!unlocked && <Lock size={10} />}
                     Lv.{lvl}
                   </span>
+                  {isCurrentForm && (
+                    <span className={styles.currentFormTag}>Active</span>
+                  )}
                 </button>
               );
             })}
           </div>
 
-          <div style={{ width: '100%', maxWidth: '380px', marginTop: '12px' }}>
+          <div style={{ width: '100%', maxWidth: '380px', marginTop: '16px' }}>
             <ProgressBar
               value={squad.currentXp}
               max={squad.targetXp}

@@ -117,10 +117,10 @@ export const MascotDisplay: React.FC<MascotDisplayProps> = ({
       >
         {/*
           Graceful Loading & Asset Strategy:
-          If a production .webp image is present in public/assets/mascot/, it displays it.
-          If imageError occurs or while raster asset is loading, MascotVectorFallback renders seamlessly.
+          If a production .webp image is confirmed in public/assets/mascot/, assetUrl is non-null and it displays it.
+          If assetUrl is null (no raster file exists yet) or imageError occurs, MascotVectorFallback renders directly.
         */}
-        {!imageError ? (
+        {assetUrl && !imageError ? (
           <>
             <img
               src={assetUrl}

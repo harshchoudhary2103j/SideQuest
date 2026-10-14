@@ -93,15 +93,27 @@
   gap: var(--space-3);
 }
 
+.statusBannerRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
 .stageMascotWrap {
-  margin: var(--space-2) 0;
+  margin: var(--space-8) 0 var(--space-3) 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .stageDescriptionBox {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  max-width: 400px;
+  align-items: center;
+  gap: 6px;
+  max-width: 440px;
 }
 
 .stageName {
@@ -125,18 +137,33 @@
   line-height: 1.45;
 }
 
+.lockedNotice {
+  margin-top: var(--space-2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-family: var(--font-family-body);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  text-align: left;
+}
+
 .stageSelectorRow {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  margin-top: var(--space-2);
+  margin-top: var(--space-3);
   flex-wrap: wrap;
   justify-content: center;
 }
 
 .levelButton {
-  min-width: 58px;
-  min-height: 40px;
+  min-width: 64px;
+  min-height: 42px;
   padding: 6px 12px;
   border-radius: var(--radius-button);
   background-color: var(--color-surface-raised);
@@ -147,6 +174,11 @@
   font-weight: 700;
   cursor: pointer;
   transition: all var(--transition-fast);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
 }
 
 .levelButton:hover {
@@ -154,11 +186,35 @@
   color: var(--color-text-primary);
 }
 
-.levelButtonActive {
+/* 1. Active Squad Form Selected */
+.levelButtonCurrent {
   background-color: var(--color-primary-action);
   color: var(--color-text-action);
   border-color: var(--color-primary-action);
   box-shadow: var(--glow-lime);
+}
+
+/* 2. Unlocked Archive Form Selected */
+.levelButtonUnlockedActive {
+  background-color: rgba(124, 58, 237, 0.25);
+  color: #DDD6FE;
+  border-color: var(--color-purple);
+  box-shadow: 0 0 12px rgba(124, 58, 237, 0.35);
+}
+
+/* 3. Locked Preview Form Selected (Distinct from Unlocked/Active!) */
+.levelButtonLockedActive {
+  background-color: rgba(25, 31, 56, 0.95);
+  color: var(--color-gold);
+  border-color: rgba(255, 200, 87, 0.6);
+  box-shadow: 0 0 10px rgba(255, 200, 87, 0.2);
+}
+
+.currentFormTag {
+  font-size: 0.625rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 /* Invite Share Box */

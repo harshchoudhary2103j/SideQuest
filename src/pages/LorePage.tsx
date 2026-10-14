@@ -29,6 +29,7 @@ export const LorePage: React.FC = () => {
   const { showToast } = useToast();
 
   const [activeCategory, setActiveCategory] = useState<LoreCategory>('all');
+  const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
   const [likesMap, setLikesMap] = useState<Record<string, { count: number; userLiked: boolean }>>({
     'lore-1': { count: 8, userLiked: false },
     'lore-2': { count: 12, userLiked: true },
@@ -134,12 +135,31 @@ export const LorePage: React.FC = () => {
                 <Card key={item.id} variant="standard" padding="lg" className={styles.loreCard}>
                   {/* Polaroid Frame */}
                   <div className={styles.polaroidFrame}>
-                    {item.imageUrl ? (
-                      <img src={item.imageUrl} alt={item.title} className={styles.polaroidImg} />
+                    {item.imageUrl && !failedImages[item.id] ? (
+                      <img
+                        src={item.imageUrl}
+                        alt={item.title}
+                        className={styles.polaroidImg}
+                        onError={() =>
+                          setFailedImages((prev) => ({ ...prev, [item.id]: true }))
+                        }
+                      />
                     ) : (
                       <div className={styles.polaroidPlaceholder}>
-                        <span style={{ fontSize: '2.5rem' }}>{item.fallbackIcon || '📸'}</span>
-                        <span className={styles.polaroidPlaceholderText}>{item.title}</span>
+                        <div className={styles.placeholderIconCircle}>
+                          <span>{item.fallbackIcon || '📸'}</span>
+                        </div>
+                        <span className={styles.placeholderBadge}>
+                          {item.category === 'milestones'
+                            ? 'Squad Milestone'
+                            : item.category === 'chaos'
+                            ? 'Pure Chaos'
+                            : 'Mission Memory'}
+                        </span>
+                        <h4 className={styles.polaroidPlaceholderText}>{item.title}</h4>
+                        <span className={styles.polaroidPlaceholderSub}>
+                          Archived in Private Squad Lore
+                        </span>
                       </div>
                     )}
                   </div>

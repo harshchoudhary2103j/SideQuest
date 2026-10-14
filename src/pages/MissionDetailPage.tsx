@@ -211,11 +211,10 @@ export const MissionDetailPage: React.FC = () => {
             expression={mission.briefingExpression}
             size="small"
             animation="think"
-            speechBubble={mission.briefingSpeech}
           />
           <div>
             <CardTitle>Mission Rules & Guidelines</CardTitle>
-            <CardDescription>Follow these squad guidelines to unlock full XP.</CardDescription>
+            <CardDescription>{mission.briefingSpeech}</CardDescription>
           </div>
         </div>
         <CardContent>

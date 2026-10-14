@@ -1,6 +1,15 @@
 export * from './mascot';
 export * from './mission';
 export * from './squad';
+export type {
+  Database,
+  SquadRole,
+  MissionDefinitionStatus,
+  AssignmentStatus,
+  ProofType,
+  SubmissionStatus,
+  LoreEventType,
+} from './database';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
 export type ButtonSize = 'sm' | 'md' | 'lg';

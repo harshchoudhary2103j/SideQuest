@@ -73,23 +73,33 @@ export const MASCOT_ASSET_PATHS = {
 };
 
 /**
- * Resolves the candidate asset URL for the given configuration.
+ * Set of raster assets confirmed to exist in public/assets/mascot/.
+ * Initially empty until production 3D/raster webp exports are added to public/assets/mascot/.
+ * This guarantees we never attempt to fetch a nonexistent file or emit 404 console errors.
+ */
+export const AVAILABLE_RASTER_ASSETS = new Set<string>();
+
+/**
+ * Resolves the candidate asset URL for the given configuration if a raster file exists.
+ * Returns null if no raster file exists, triggering the high-fidelity vector fallback directly.
  */
 export function resolveMascotAssetUrl(options: {
   expression?: MascotExpression;
   evolutionLevel?: MascotEvolutionLevel;
   pose?: MascotPose;
-}): string {
+}): string | null {
+  let candidate: string | null = null;
   if (options.pose && MASCOT_ASSET_PATHS.poses[options.pose]) {
-    return MASCOT_ASSET_PATHS.poses[options.pose];
+    candidate = MASCOT_ASSET_PATHS.poses[options.pose];
+  } else if (options.expression && MASCOT_ASSET_PATHS.expressions[options.expression]) {
+    candidate = MASCOT_ASSET_PATHS.expressions[options.expression];
+  } else if (options.evolutionLevel && MASCOT_ASSET_PATHS.evolution[options.evolutionLevel]) {
+    candidate = MASCOT_ASSET_PATHS.evolution[options.evolutionLevel];
+  } else {
+    candidate = MASCOT_ASSET_PATHS.base;
   }
-  if (options.expression && MASCOT_ASSET_PATHS.expressions[options.expression]) {
-    return MASCOT_ASSET_PATHS.expressions[options.expression];
-  }
-  if (options.evolutionLevel && MASCOT_ASSET_PATHS.evolution[options.evolutionLevel]) {
-    return MASCOT_ASSET_PATHS.evolution[options.evolutionLevel];
-  }
-  return MASCOT_ASSET_PATHS.base;
+
+  return candidate && AVAILABLE_RASTER_ASSETS.has(candidate) ? candidate : null;
 }
 
 export function getEvolutionStageInfo(level: MascotEvolutionLevel): EvolutionStageInfo {
