@@ -306,3 +306,67 @@ missionsRouter.post(
     }
   }
 );
+
+/**
+ * POST /api/v1/missions/submissions/:submissionId/review
+ * Executes atomic squad review of mission proof (approval or rejection with reason).
+ * Evaluated through PostgreSQL stored procedure review_mission_submission.
+ */
+missionsRouter.post(
+  '/submissions/:submissionId/review',
+  requireAuth,
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const rawSubmissionId = req.params.submissionId;
+      const submissionId = typeof rawSubmissionId === 'string' ? rawSubmissionId : '';
+      const { decision, rejectionReason } = req.body || {};
+
+      if (!submissionId || !UUID_REGEX.test(submissionId)) {
+        res.status(400).json({ error: 'Valid submissionId UUID required' });
+        return;
+      }
+
+      if (!decision || (decision !== 'approved' && decision !== 'rejected')) {
+        res.status(400).json({ error: 'decision must be either "approved" or "rejected"' });
+        return;
+      }
+
+      if (decision === 'rejected' && (!rejectionReason || !String(rejectionReason).trim())) {
+        res.status(400).json({ error: 'A meaningful rejectionReason is required when rejecting a submission' });
+        return;
+      }
+
+      const scopedSupabase = req.scopedSupabase!;
+
+      const { data, error } = await scopedSupabase.rpc('review_mission_submission', {
+        p_submission_id: submissionId,
+        p_decision: decision,
+        p_rejection_reason: decision === 'rejected' ? String(rejectionReason).trim() : null,
+      });
+
+      if (error) {
+        if (error.message.includes('Submitter cannot review')) {
+          res.status(403).json({ error: error.message });
+          return;
+        }
+        if (error.message.includes('only active members')) {
+          res.status(403).json({ error: error.message });
+          return;
+        }
+        if (error.message.includes('already been finalized')) {
+          res.status(409).json({ error: error.message });
+          return;
+        }
+        if (error.message.includes('already been completed') || error.message.includes('XP has already been awarded')) {
+          res.status(409).json({ error: error.message });
+          return;
+        }
+        return next(error);
+      }
+
+      res.status(200).json(data);
+    } catch (err) {
+      next(err);
+    }
+  }
+);

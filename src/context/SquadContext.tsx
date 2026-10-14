@@ -21,6 +21,7 @@ import {
   SquadContext,
   type SubmitProofOptions,
   type SubmitProofResult,
+  type ReviewSubmissionResult,
 } from './squadContextDef';
 import { useAuth } from './useAuth';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
@@ -59,7 +60,8 @@ function mapDailyRowToMission(row: DailyMissionRow): Mission {
 
 async function loadSubmissionsForSquad(
   squadId: string,
-  profilesMap: Map<string, { id: string; display_name: string | null; aura: string | null }>
+  profilesMap: Map<string, { id: string; display_name: string | null; aura: string | null }>,
+  currentUserId?: string
 ): Promise<Map<string, SquadMemberSubmission[]>> {
   const result = new Map<string, SquadMemberSubmission[]>();
   try {
@@ -87,15 +89,21 @@ async function loadSubmissionsForSquad(
       }
 
       const p = profilesMap.get(sub.submitted_by);
+      const isCurrent = currentUserId ? sub.submitted_by === currentUserId : false;
       const submissionItem: SquadMemberSubmission = {
         id: sub.id,
         memberId: sub.submitted_by,
-        memberName: p?.display_name || 'Teammate',
+        memberName: p?.display_name || (isCurrent ? 'You' : 'Teammate'),
         submittedAt: new Date(sub.submitted_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         type: sub.proof_type as SubmissionType,
         mediaUrl: signedUrl,
         caption: sub.text_content || 'Proof submitted',
         reactionsCount: 0,
+        status: (sub.status as 'submitted' | 'approved' | 'rejected' | 'flagged') || 'submitted',
+        reviewedBy: sub.reviewed_by,
+        reviewedAt: sub.reviewed_at ? new Date(sub.reviewed_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : undefined,
+        rejectionReason: sub.rejection_reason,
+        isCurrentUser: isCurrent,
       };
 
       const existing = result.get(sub.assignment_id) || [];
@@ -224,7 +232,7 @@ export const SquadProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setHasSquad(true);
 
       // 5. Fetch persistent submissions for this squad
-      const submissionsMap = await loadSubmissionsForSquad(targetSquadId, profilesMap);
+      const submissionsMap = await loadSubmissionsForSquad(targetSquadId, profilesMap, userId);
 
       // 6. Fetch or generate Daily Mission Assignments for the squad
       setIsLoadingMissions(true);
@@ -243,9 +251,17 @@ export const SquadProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         const mapped = (dailyData as DailyMissionRow[]).map((row) => {
           const base = mapDailyRowToMission(row);
           const subs = submissionsMap.get(row.assignment_id) || [];
+          const hasApproved = subs.some((s) => s.status === 'approved');
+          const hasPending = subs.some((s) => s.status === 'submitted');
+          let derivedStatus: MissionStatus = (row.status as MissionStatus) || 'available';
+          if (row.status === 'completed' || hasApproved) {
+            derivedStatus = 'completed';
+          } else if (hasPending || row.status === 'in_progress') {
+            derivedStatus = 'in_progress';
+          }
           return {
             ...base,
-            status: (row.status as MissionStatus) || (subs.length > 0 ? 'in_progress' : 'available'),
+            status: derivedStatus,
             squadSubmissions: subs,
           };
         });
@@ -307,7 +323,7 @@ export const SquadProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         .select('*')
         .in('id', memberIds);
       const profilesMap = new Map((profilesData || []).map((p) => [p.id, p]));
-      const submissionsMap = await loadSubmissionsForSquad(squad.id, profilesMap);
+      const submissionsMap = await loadSubmissionsForSquad(squad.id, profilesMap, user?.id);
 
       const { data: dailyData, error: dailyError } = await supabase
         .rpc('get_or_create_daily_missions', {
@@ -321,9 +337,17 @@ export const SquadProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         const mapped = (dailyData as DailyMissionRow[]).map((row) => {
           const base = mapDailyRowToMission(row);
           const subs = submissionsMap.get(row.assignment_id) || [];
+          const hasApproved = subs.some((s) => s.status === 'approved');
+          const hasPending = subs.some((s) => s.status === 'submitted');
+          let derivedStatus: MissionStatus = (row.status as MissionStatus) || 'available';
+          if (row.status === 'completed' || hasApproved) {
+            derivedStatus = 'completed';
+          } else if (hasPending || row.status === 'in_progress') {
+            derivedStatus = 'in_progress';
+          }
           return {
             ...base,
-            status: (row.status as MissionStatus) || (subs.length > 0 ? 'in_progress' : 'available'),
+            status: derivedStatus,
             squadSubmissions: subs,
           };
         });
@@ -336,7 +360,7 @@ export const SquadProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } finally {
       setIsLoadingMissions(false);
     }
-  }, [hasSquad, squad.id]);
+  }, [hasSquad, squad.id, user]);
 
   const getMissionById = useCallback(
     (id: string) => missions.find((m) => m.id === id || m.assignmentId === id || m.missionId === id),
@@ -359,6 +383,97 @@ export const SquadProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return null;
     }
   }, []);
+
+  const reviewSubmission = useCallback(
+    async (
+      submissionId: string,
+      decision: 'approved' | 'rejected',
+      rejectionReason?: string
+    ): Promise<ReviewSubmissionResult> => {
+      // 1. Mock / Unauthenticated fallback
+      if (!user || !isSupabaseConfigured || !squad.id) {
+        let xpGained = 0;
+        setMissions((prev) =>
+          prev.map((m) => {
+            const subIndex = m.squadSubmissions.findIndex((s) => s.id === submissionId);
+            if (subIndex === -1) return m;
+
+            xpGained = m.xpReward || 100;
+            const updatedSubs = [...m.squadSubmissions];
+            updatedSubs[subIndex] = {
+              ...updatedSubs[subIndex],
+              status: decision,
+              rejectionReason: decision === 'rejected' ? rejectionReason : undefined,
+              reviewedAt: 'Just now',
+              reviewedBy: user?.id || 'mock-reviewer',
+            };
+
+            return {
+              ...m,
+              status: decision === 'approved' ? 'completed' : m.status,
+              squadSubmissions: updatedSubs,
+            };
+          })
+        );
+
+        if (decision === 'approved') {
+          setSquad((prev) => {
+            const nextXp = prev.currentXp + xpGained;
+            const nextLevel = Math.max(1, Math.floor(nextXp / 300) + 1);
+            return {
+              ...prev,
+              currentXp: nextXp,
+              level: nextLevel,
+              targetXp: nextLevel * 300,
+            };
+          });
+        }
+
+        return {
+          success: true,
+          decision,
+          xpAwarded: decision === 'approved' ? xpGained : 0,
+        };
+      }
+
+      // 2. Real Authorized RPC Execution
+      try {
+        const { data, error } = await supabase.rpc('review_mission_submission', {
+          p_submission_id: submissionId,
+          p_decision: decision,
+          p_rejection_reason: decision === 'rejected' ? (rejectionReason?.trim() || null) : null,
+        });
+
+        if (error) {
+          return { success: false, error: error.message };
+        }
+
+        const res = data as {
+          success: boolean;
+          decision: 'approved' | 'rejected';
+          xp_awarded: number;
+          new_total_xp?: number;
+          new_level?: number;
+          assignment_id?: string;
+        };
+
+        // Reload squad progression and missions state authoritatively
+        await loadRealSquad(user.id);
+
+        return {
+          success: true,
+          decision: res.decision,
+          xpAwarded: res.xp_awarded,
+          newTotalXp: res.new_total_xp,
+          newLevel: res.new_level,
+        };
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Review operation failed';
+        return { success: false, error: msg };
+      }
+    },
+    [user, squad.id, loadRealSquad]
+  );
 
   const petQuesty = useCallback(() => {
     setSquad((prev) => ({
@@ -488,6 +603,8 @@ export const SquadProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             caption: proof.caption?.trim() || 'Submitted mission proof with squad hand sign!',
             mediaUrl: signedUrl || proof.mediaUrl,
             reactionsCount: 0,
+            status: 'submitted',
+            isCurrentUser: true,
           };
 
           setMissions((prev) =>
@@ -544,6 +661,8 @@ export const SquadProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         caption: proof.caption || 'Submitted mission proof with squad hand sign!',
         mediaUrl: proof.mediaUrl,
         reactionsCount: 0,
+        status: 'submitted',
+        isCurrentUser: true,
       };
 
       setMissions((prev) =>
@@ -676,6 +795,7 @@ export const SquadProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         missionsError,
         getMissionById,
         submitMissionProof,
+        reviewSubmission,
         getSignedProofUrl,
         createOrJoinSquad,
         petQuesty,

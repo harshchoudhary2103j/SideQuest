@@ -402,3 +402,156 @@
   50% { transform: translateY(-3px); opacity: 1; }
   100% { transform: translateY(0); opacity: 0.7; }
 }
+
+/* Squad Review Controls */
+.subReviewSection {
+  margin-top: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.reviewActionRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.approveBtn {
+  background: rgba(69, 214, 160, 0.15);
+  border: 1px solid #45D6A0;
+  color: #45D6A0;
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-family: var(--font-family-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all var(--transition-fast);
+}
+
+.approveBtn:hover:not(:disabled) {
+  background: rgba(69, 214, 160, 0.25);
+  box-shadow: 0 0 12px rgba(69, 214, 160, 0.3);
+}
+
+.approveBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.rejectBtn {
+  background: rgba(255, 90, 95, 0.12);
+  border: 1px solid #FF5A5F;
+  color: #FF5A5F;
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-family: var(--font-family-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all var(--transition-fast);
+}
+
+.rejectBtn:hover:not(:disabled) {
+  background: rgba(255, 90, 95, 0.22);
+  box-shadow: 0 0 12px rgba(255, 90, 95, 0.3);
+}
+
+.rejectBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.rejectionForm {
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border-standard);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.rejectionInput {
+  background: var(--color-surface-standard);
+  border: 1px solid var(--color-border-standard);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-primary);
+  padding: 8px 12px;
+  font-family: var(--font-family-body);
+  font-size: 0.8125rem;
+  outline: none;
+}
+
+.rejectionInput:focus {
+  border-color: #FF5A5F;
+}
+
+.rejectionBtnRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.confirmRejectBtn {
+  background: #FF5A5F;
+  border: none;
+  color: #FFFFFF;
+  border-radius: var(--radius-sm);
+  padding: 6px 14px;
+  font-family: var(--font-family-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.confirmRejectBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cancelRejectBtn {
+  background: transparent;
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-muted);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-family: var(--font-family-body);
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.feedbackBox {
+  background: rgba(255, 90, 95, 0.08);
+  border: 1px solid rgba(255, 90, 95, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  margin-top: var(--space-2);
+  font-family: var(--font-family-body);
+  font-size: 0.75rem;
+  color: #FF8589;
+  line-height: 1.4;
+}
+
+.completedMissionBanner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(69, 214, 160, 0.12);
+  border: 1px solid #45D6A0;
+  border-radius: var(--radius-card);
+  padding: var(--space-3) var(--space-4);
+  color: #45D6A0;
+  font-family: var(--font-family-display);
+  font-size: 0.875rem;
+  font-weight: 700;
+}

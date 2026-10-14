@@ -18,7 +18,8 @@
     "db:test": "npm --prefix server run db:test",
     "test:phase3b": "npm --prefix server run test:phase3b",
     "test:phase4a": "npm --prefix server run test:phase4a",
-    "test:phase4b": "npm --prefix server run test:phase4b"
+    "test:phase4b": "npm --prefix server run test:phase4b",
+    "test:phase4c": "npm --prefix server run test:phase4c"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.109.0",

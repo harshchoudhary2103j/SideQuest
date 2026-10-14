@@ -14,7 +14,12 @@ export interface SquadMemberSubmission {
   type: SubmissionType;
   mediaUrl?: string;
   caption?: string;
-  reactionsCount: number;
+  reactionsCount?: number;
+  status?: 'submitted' | 'approved' | 'rejected' | 'flagged';
+  reviewedBy?: string | null;
+  reviewedAt?: string | null;
+  rejectionReason?: string | null;
+  isCurrentUser?: boolean;
 }
 
 export interface Mission {

@@ -27,28 +27,49 @@ export const MissionResultPage: React.FC = () => {
   const proofCaption = state?.caption || latestSub?.caption;
   const proofType = state?.type || latestSub?.type || 'photo';
 
+  const isMissionCompleted = mission?.status === 'completed' || latestSub?.status === 'approved';
+  const isSubmissionRejected = latestSub?.status === 'rejected';
+
   return (
     <div className={styles.container}>
       <Card variant="featured" padding="lg" className={styles.celebrationCard}>
-        <Badge variant="lime" size="md" dot icon={<ShieldCheck size={14} />}>
-          Proof Submitted · In Progress
-        </Badge>
+        {isMissionCompleted ? (
+          <Badge variant="lime" size="md" dot icon={<ShieldCheck size={14} />}>
+            Mission Completed · Verified
+          </Badge>
+        ) : isSubmissionRejected ? (
+          <Badge variant="error" size="md" dot icon={<ShieldCheck size={14} />}>
+            Proof Rejected · Resubmission Needed
+          </Badge>
+        ) : (
+          <Badge variant="purple" size="md" dot icon={<ShieldCheck size={14} />}>
+            Proof Submitted · Awaiting Review
+          </Badge>
+        )}
 
         <div className={styles.mascotWrap}>
           <MascotDisplay
-            expression={mission?.resultExpression || 'excited'}
+            expression={isMissionCompleted ? 'proud' : isSubmissionRejected ? 'sleepy' : (mission?.resultExpression || 'excited')}
             evolutionLevel={squad.evolutionLevel}
             size="large"
             animation="celebrate"
-            speechBubble="Proof safely locked in our squad vault! 🔒"
+            speechBubble={
+              isMissionCompleted
+                ? "Mission approved! Vault XP banked! ⚡"
+                : isSubmissionRejected
+                ? "Teammates requested a new photo/video! 🔍"
+                : "Proof safely locked in our squad vault! 🔒"
+            }
             showStageBadge
           />
         </div>
 
         <div>
-          <h1 className={styles.resultTitle}>Proof Dispatched!</h1>
+          <h1 className={styles.resultTitle}>
+            {isMissionCompleted ? 'Mission Verified!' : isSubmissionRejected ? 'Changes Requested' : 'Proof Dispatched!'}
+          </h1>
           <p className="text-secondary" style={{ marginTop: '4px' }}>
-            {mission?.title || 'Daily Squad Mission'} · Awaiting Squad Review
+            {mission?.title || 'Daily Squad Mission'} · {isMissionCompleted ? 'Authoritative XP Awarded' : isSubmissionRejected ? 'Resubmission Eligible' : 'Awaiting Squad Review'}
           </p>
         </div>
 
@@ -66,8 +87,10 @@ export const MissionResultPage: React.FC = () => {
         )}
 
         <div className={styles.xpBadgeLarge}>
-          <Sparkles size={20} color="#D4FF38" />
-          <span>+{mission?.xpReward || 100} XP (Pending Review)</span>
+          <Sparkles size={20} color={isMissionCompleted ? "#D4FF38" : "#8A94A6"} />
+          <span>
+            +{mission?.xpReward || 100} XP {isMissionCompleted ? '(Awarded to Squad)' : isSubmissionRejected ? '(Not Awarded)' : '(Pending Review)'}
+          </span>
         </div>
 
         <div style={{ width: '100%', maxWidth: '380px' }}>
@@ -81,14 +104,18 @@ export const MissionResultPage: React.FC = () => {
           />
         </div>
 
-        {/* Questy AI Evaluation Commentary */}
+        {/* Questy Vault Commentary */}
         <div className={styles.commentaryBox}>
           <div className={styles.commentaryHeader}>
             <Sparkles size={14} />
             <span>Vault Status Note</span>
           </div>
           <p className={styles.commentaryText}>
-            Proof stored under assignment #{mission?.assignmentId?.slice(0, 8) || 'active'}. XP will be credited once your squad verifies this submission!
+            {isMissionCompleted
+              ? `Assignment #${mission?.assignmentId?.slice(0, 8) || 'active'} is verified and marked complete. Authoritative XP has been added to squad progression.`
+              : isSubmissionRejected
+              ? `Submission was rejected: "${latestSub?.rejectionReason || 'Please resubmit clearer proof'}". You can submit a new attempt.`
+              : `Proof stored under assignment #${mission?.assignmentId?.slice(0, 8) || 'active'}. XP will be credited once your squad verifies this submission!`}
           </p>
         </div>
 

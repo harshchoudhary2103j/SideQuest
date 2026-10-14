@@ -15,6 +15,15 @@ export interface SubmitProofResult {
   error?: string;
 }
 
+export interface ReviewSubmissionResult {
+  success: boolean;
+  decision?: 'approved' | 'rejected';
+  error?: string;
+  xpAwarded?: number;
+  newTotalXp?: number;
+  newLevel?: number;
+}
+
 export interface SquadContextValue {
   squad: Squad;
   missions: Mission[];
@@ -30,6 +39,11 @@ export interface SquadContextValue {
     missionId: string,
     proof: SubmitProofOptions
   ) => Promise<SubmitProofResult>;
+  reviewSubmission: (
+    submissionId: string,
+    decision: 'approved' | 'rejected',
+    rejectionReason?: string
+  ) => Promise<ReviewSubmissionResult>;
   getSignedProofUrl: (storagePath: string) => Promise<string | null>;
   createOrJoinSquad: (options: {
     userName: string;

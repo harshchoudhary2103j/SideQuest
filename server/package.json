@@ -13,7 +13,8 @@
     "db:test": "tsx src/scripts/runSecurityTests.ts",
     "test:phase3b": "tsx src/scripts/testPhase3B.ts",
     "test:phase4a": "tsx src/scripts/testPhase4A.ts",
-    "test:phase4b": "tsx src/scripts/testPhase4B.ts"
+    "test:phase4b": "tsx src/scripts/testPhase4B.ts",
+    "test:phase4c": "tsx src/scripts/testPhase4C.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",

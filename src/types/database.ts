@@ -245,6 +245,8 @@ export interface Database {
           status: SubmissionStatus;
           submitted_at: string;
           reviewed_at: string | null;
+          reviewed_by: string | null;
+          rejection_reason: string | null;
         };
         Insert: {
           id?: string;
@@ -257,6 +259,8 @@ export interface Database {
           status?: SubmissionStatus;
           submitted_at?: string;
           reviewed_at?: string | null;
+          reviewed_by?: string | null;
+          rejection_reason?: string | null;
         };
         Update: {
           id?: string;
@@ -269,6 +273,41 @@ export interface Database {
           status?: SubmissionStatus;
           submitted_at?: string;
           reviewed_at?: string | null;
+          reviewed_by?: string | null;
+          rejection_reason?: string | null;
+        };
+        Relationships: [];
+      };
+      squad_xp_ledger: {
+        Row: {
+          id: string;
+          squad_id: string;
+          assignment_id: string;
+          submission_id: string;
+          amount: number;
+          source: string;
+          awarded_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          squad_id: string;
+          assignment_id: string;
+          submission_id: string;
+          amount: number;
+          source?: string;
+          awarded_by?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          squad_id?: string;
+          assignment_id?: string;
+          submission_id?: string;
+          amount?: number;
+          source?: string;
+          awarded_by?: string | null;
+          created_at?: string;
         };
         Relationships: [];
       };
@@ -353,6 +392,14 @@ export interface Database {
           rules: string[];
           submission_requirements: string[];
         }[];
+      };
+      review_mission_submission: {
+        Args: {
+          p_submission_id: string;
+          p_decision: string;
+          p_rejection_reason?: string | null;
+        };
+        Returns: Json;
       };
     };
     Enums: {
