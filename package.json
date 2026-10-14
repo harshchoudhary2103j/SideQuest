@@ -12,7 +12,10 @@
     "server:dev": "npm --prefix server run dev",
     "server:build": "npm --prefix server run build",
     "server:typecheck": "npm --prefix server run typecheck",
-    "server:start": "npm --prefix server run start"
+    "server:start": "npm --prefix server run start",
+    "db:verify": "npm --prefix server run db:verify",
+    "db:seed": "npm --prefix server run db:seed",
+    "db:test": "npm --prefix server run db:test"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.109.0",

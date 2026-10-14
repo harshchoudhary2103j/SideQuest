@@ -7,7 +7,10 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:verify": "tsx src/scripts/verifyDatabase.ts",
+    "db:seed": "tsx src/scripts/seedDatabase.ts",
+    "db:test": "tsx src/scripts/runSecurityTests.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",
@@ -15,12 +18,14 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "helmet": "^8.0.0",
+    "pg": "^8.23.1",
     "sidequest": "file:.."
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/node": "^22.13.9",
+    "@types/pg": "^8.23.1",
     "tsx": "^4.19.3",
     "typescript": "^5.8.2"
   }
