@@ -25,6 +25,25 @@ export type LoreEventType =
   | 'mascot_evolution'
   | 'streak_milestone';
 
+export interface DailyMissionRow {
+  assignment_id: string;
+  squad_id: string;
+  mission_id: string;
+  assigned_date: string;
+  starts_at: string;
+  expires_at: string | null;
+  status: AssignmentStatus;
+  created_at: string;
+  title: string;
+  description: string;
+  category: MissionCategory;
+  difficulty: MissionDifficulty;
+  xp_reward: number;
+  proof_type: ProofType[];
+  rules: string[];
+  submission_requirements: string[];
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -186,6 +205,7 @@ export interface Database {
           id: string;
           squad_id: string;
           mission_id: string;
+          assigned_date: string;
           starts_at: string;
           expires_at: string | null;
           status: AssignmentStatus;
@@ -195,6 +215,7 @@ export interface Database {
           id?: string;
           squad_id: string;
           mission_id: string;
+          assigned_date?: string;
           starts_at?: string;
           expires_at?: string | null;
           status?: AssignmentStatus;
@@ -204,6 +225,7 @@ export interface Database {
           id?: string;
           squad_id?: string;
           mission_id?: string;
+          assigned_date?: string;
           starts_at?: string;
           expires_at?: string | null;
           status?: AssignmentStatus;
@@ -307,6 +329,30 @@ export interface Database {
           code: string;
         };
         Returns: string;
+      };
+      get_or_create_daily_missions: {
+        Args: {
+          p_squad_id: string;
+          p_timezone?: string;
+        };
+        Returns: {
+          assignment_id: string;
+          squad_id: string;
+          mission_id: string;
+          assigned_date: string;
+          starts_at: string;
+          expires_at: string | null;
+          status: AssignmentStatus;
+          created_at: string;
+          title: string;
+          description: string;
+          category: MissionCategory;
+          difficulty: MissionDifficulty;
+          xp_reward: number;
+          proof_type: ProofType[];
+          rules: string[];
+          submission_requirements: string[];
+        }[];
       };
     };
     Enums: {

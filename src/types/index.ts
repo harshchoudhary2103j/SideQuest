@@ -10,6 +10,7 @@ export type {
   ProofType,
   SubmissionStatus,
   LoreEventType,
+  DailyMissionRow,
 } from './database';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';

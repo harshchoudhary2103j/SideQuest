@@ -25,19 +25,18 @@ import {
 } from '../components/ui';
 import { MascotDisplay } from '../components/mascot';
 import { useSquad } from '../context';
-import type { SubmissionType } from '../types';
+import type { SubmissionType, SquadMemberSubmission } from '../types';
 import styles from './MissionDetailPage.module.css';
 
 export const MissionDetailPage: React.FC = () => {
   const { missionId } = useParams<{ missionId: string }>();
   const navigate = useNavigate();
-  const { getMissionById, submitMissionProof } = useSquad();
+  const { getMissionById, submitMissionProof, missions } = useSquad();
   const { showToast } = useToast();
-
-  const mission = getMissionById(missionId || 'snack-heist') || getMissionById('snack-heist');
+  const mission = (missionId ? getMissionById(missionId) : undefined) || missions[0];
 
   const [activeTab, setActiveTab] = useState<SubmissionType>('photo');
-  const [_selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [caption, setCaption] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,6 +47,7 @@ export const MissionDetailPage: React.FC = () => {
   const [voiceSeconds, setVoiceSeconds] = useState(0);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   // Clean up object URLs on unmount or file change
   useEffect(() => {
@@ -87,23 +87,24 @@ export const MissionDetailPage: React.FC = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate size (max 15MB for demo)
-    if (file.size > 15 * 1024 * 1024) {
-      setFileError('File size exceeds 15MB limit. Please choose a smaller file.');
+    // Validate size (max 50MB strictly enforced by mission-proof bucket)
+    const MAX_SIZE = 50 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      setFileError('File size exceeds the 50MB limit. Please choose a smaller file.');
       return;
     }
 
-    // Validate type
-    const isImage = file.type.startsWith('image/');
-    const isVideo = file.type.startsWith('video/');
+    // Validate MIME types matching storage policy
+    const ALLOWED_IMAGES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    const ALLOWED_VIDEOS = ['video/mp4', 'video/webm'];
 
-    if (activeTab === 'photo' && !isImage) {
-      setFileError('Please select a valid image file (PNG, JPG, WebP).');
+    if (activeTab === 'photo' && !ALLOWED_IMAGES.includes(file.type)) {
+      setFileError('Unsupported image format. Allowed formats: JPG, PNG, WebP, GIF.');
       return;
     }
 
-    if (activeTab === 'video' && !isVideo) {
-      setFileError('Please select a valid video file (MP4, MOV).');
+    if (activeTab === 'video' && !ALLOWED_VIDEOS.includes(file.type)) {
+      setFileError('Unsupported video format. Allowed formats: MP4, WebM.');
       return;
     }
 
@@ -126,37 +127,70 @@ export const MissionDetailPage: React.FC = () => {
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+    if (cameraInputRef.current) {
+      cameraInputRef.current.value = '';
+    }
   };
 
-  const handleSubmitProof = () => {
-    if (activeTab === 'photo' && !previewUrl) {
+  const handleSubmitProof = async () => {
+    if (isSubmitting) return; // Prevent duplicate clicks
+    setFileError(null);
+
+    if (activeTab === 'photo' && !selectedFile && !previewUrl) {
       setFileError('Please snap or upload a proof photo before submitting.');
       return;
     }
 
-    if (activeTab === 'video' && !previewUrl) {
-      setFileError('Please select a proof video before submitting.');
+    if (activeTab === 'video' && !selectedFile && !previewUrl) {
+      setFileError('Please select or record a proof video before submitting.');
       return;
     }
 
     setIsSubmitting(true);
 
-    setTimeout(() => {
-      submitMissionProof(mission.id, {
+    try {
+      const result = await submitMissionProof(mission.id, {
         type: activeTab,
         caption: caption.trim() || undefined,
+        file: selectedFile,
         mediaUrl: previewUrl || undefined,
       });
 
-      setIsSubmitting(false);
+      if (!result.success) {
+        setFileError(result.error || 'Failed to submit proof. Please try again.');
+        showToast({
+          type: 'error',
+          title: 'Submission Failed',
+          message: result.error || 'Could not persist mission proof.',
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
       showToast({
         type: 'success',
         title: 'Proof Submitted! 🎉',
-        message: `+${mission.xpReward} XP awarded to the squad. Questy is analyzing!`,
+        message: 'Stored securely in private squad vault. Pending squad review.',
       });
 
-      navigate(`/app/missions/${mission.id}/result`);
-    }, 900);
+      navigate(`/app/missions/${mission.id}/result`, {
+        state: {
+          proofUrl: result.signedUrl || previewUrl,
+          caption: caption.trim(),
+          type: activeTab,
+        },
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Submission failed';
+      setFileError(msg);
+      showToast({
+        type: 'error',
+        title: 'Submission Error',
+        message: msg,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -198,7 +232,7 @@ export const MissionDetailPage: React.FC = () => {
             <span className={styles.metaLabel}>Squad Proofs</span>
           </div>
           <div className={styles.metaItem}>
-            <span className={styles.metaVal}>Private</span>
+            <span className={styles.metaVal}>Private Vault</span>
             <span className={styles.metaLabel}>Visibility</span>
           </div>
         </div>
@@ -219,7 +253,7 @@ export const MissionDetailPage: React.FC = () => {
         </div>
         <CardContent>
           <div className={styles.rulesList}>
-            {mission.rules.map((rule, idx) => (
+            {mission.rules.map((rule: string, idx: number) => (
               <div key={idx} className={styles.ruleItem}>
                 <CheckCircle2 size={16} color="#45D6A0" className={styles.ruleIcon} />
                 <span>{rule}</span>
@@ -293,14 +327,39 @@ export const MissionDetailPage: React.FC = () => {
                 </div>
                 <div className={styles.dropText}>
                   <span className={styles.dropTitle}>
-                    {activeTab === 'photo' ? 'Tap to snap or upload photo' : 'Tap to select short video'}
+                    {activeTab === 'photo' ? 'Tap to choose or snap photo' : 'Tap to select or record video'}
                   </span>
-                  <span className={styles.dropHint}>Supports JPG, PNG, WebP, MP4 up to 15MB</span>
+                  <span className={styles.dropHint}>Supports JPG, PNG, WebP, MP4 up to 50MB</span>
                 </div>
+
+                {/* Direct Camera Capture Button */}
+                <button
+                  type="button"
+                  className={styles.cameraActionBtn}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    cameraInputRef.current?.click();
+                  }}
+                >
+                  <Camera size={14} />
+                  <span>{activeTab === 'photo' ? 'Open Camera' : 'Record Video'}</span>
+                </button>
+
+                {/* File picker input */}
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept={activeTab === 'photo' ? 'image/*' : 'video/*'}
+                  accept={activeTab === 'photo' ? 'image/jpeg,image/png,image/webp,image/gif' : 'video/mp4,video/webm'}
+                  className={styles.hiddenInput}
+                  onChange={handleFileChange}
+                />
+
+                {/* Native camera capture input */}
+                <input
+                  ref={cameraInputRef}
+                  type="file"
+                  accept={activeTab === 'photo' ? 'image/jpeg,image/png,image/webp' : 'video/mp4,video/webm'}
+                  capture="environment"
                   className={styles.hiddenInput}
                   onChange={handleFileChange}
                 />
@@ -317,6 +376,7 @@ export const MissionDetailPage: React.FC = () => {
                   className={styles.removePreviewBtn}
                   onClick={handleRemovePreview}
                   aria-label="Remove selected media"
+                  disabled={isSubmitting}
                 >
                   <X size={16} />
                 </button>
@@ -365,26 +425,35 @@ export const MissionDetailPage: React.FC = () => {
           placeholder="What made this hilarious or weird? E.g., 'Ate this under the bridge with Alex...'"
           value={caption}
           onChange={(e) => setCaption(e.target.value)}
+          disabled={isSubmitting}
         />
+
+        {isSubmitting && (
+          <div className={styles.uploadingNote}>
+            <UploadCloud size={16} className={styles.spinningIcon} />
+            <span>Securing proof in private squad vault and updating records...</span>
+          </div>
+        )}
 
         <Button
           variant="primary"
           size="lg"
           fullWidth
           isLoading={isSubmitting}
+          disabled={isSubmitting}
           rightIcon={<Send size={18} />}
           onClick={handleSubmitProof}
         >
-          Submit Proof to Squad
+          {isSubmitting ? 'Securing Proof in Vault...' : 'Submit Proof to Squad'}
         </Button>
       </Card>
 
-      {/* Squad Submissions Feed */}
+      {/* Squad Submissions Feed with Authorized Proof Display */}
       {mission.squadSubmissions.length > 0 && (
         <section className={styles.squadSubmissionsSection}>
           <h2 className="text-section-title">Squad Submissions ({mission.squadSubmissions.length})</h2>
           <Card variant="standard" padding="md">
-            {mission.squadSubmissions.map((sub) => (
+            {mission.squadSubmissions.map((sub: SquadMemberSubmission) => (
               <div key={sub.id} className={styles.submissionItem}>
                 <Avatar name={sub.memberName} size="md" status="online" ring="lime" />
                 <div className={styles.subMeta}>
@@ -392,7 +461,14 @@ export const MissionDetailPage: React.FC = () => {
                     <span className={styles.subName}>{sub.memberName}</span>
                     <span className={styles.subTime}>{sub.submittedAt}</span>
                   </div>
-                  <p className={styles.subCaption}>{sub.caption}</p>
+                  {sub.caption && <p className={styles.subCaption}>{sub.caption}</p>}
+                  {sub.mediaUrl && (
+                    sub.type === 'video' ? (
+                      <video src={sub.mediaUrl} controls className={styles.feedMedia} />
+                    ) : (
+                      <img src={sub.mediaUrl} alt="Squad proof" className={styles.feedMedia} />
+                    )
+                  )}
                 </div>
               </div>
             ))}

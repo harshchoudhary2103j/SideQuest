@@ -19,6 +19,9 @@ export interface SquadMemberSubmission {
 
 export interface Mission {
   id: string;
+  assignmentId?: string;
+  missionId?: string;
+  assignedDate?: string;
   title: string;
   category: MissionCategory;
   difficulty: MissionDifficulty;

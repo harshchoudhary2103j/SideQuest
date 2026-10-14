@@ -1,6 +1,20 @@
 import { createContext } from 'react';
 import type { Squad, Mission, ActivityEvent, LoreItem, SubmissionType } from '../types';
 
+export interface SubmitProofOptions {
+  type: SubmissionType;
+  caption?: string;
+  file?: File | null;
+  mediaUrl?: string;
+}
+
+export interface SubmitProofResult {
+  success: boolean;
+  submissionId?: string;
+  signedUrl?: string;
+  error?: string;
+}
+
 export interface SquadContextValue {
   squad: Squad;
   missions: Mission[];
@@ -8,15 +22,15 @@ export interface SquadContextValue {
   lore: LoreItem[];
   hasSquad: boolean;
   isLoadingSquad: boolean;
+  isLoadingMissions: boolean;
+  missionsError: string | null;
   getMissionById: (id: string) => Mission | undefined;
+  refreshDailyMissions: () => Promise<void>;
   submitMissionProof: (
     missionId: string,
-    proof: {
-      type: SubmissionType;
-      caption?: string;
-      mediaUrl?: string;
-    }
-  ) => { xpGained: number; isEvolution: boolean };
+    proof: SubmitProofOptions
+  ) => Promise<SubmitProofResult>;
+  getSignedProofUrl: (storagePath: string) => Promise<string | null>;
   createOrJoinSquad: (options: {
     userName: string;
     squadName?: string;

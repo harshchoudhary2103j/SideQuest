@@ -28,8 +28,8 @@ export const SquadPage: React.FC = () => {
   const [heartsCount, setHeartsCount] = useState(42);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
 
-  // Active mission
-  const activeMission = missions.find((m) => m.id === 'snack-heist') || missions[0];
+  // Active daily mission
+  const activeMission = missions.length > 0 ? missions[0] : undefined;
 
   const handlePetQuesty = () => {
     setMascotAnim('celebrate');
@@ -144,51 +144,57 @@ export const SquadPage: React.FC = () => {
           <Badge variant="lime" size="sm">Action Required</Badge>
         </div>
 
-        <Card
-          variant="interactive"
-          padding="lg"
-          onClick={() => navigate(`/app/missions/${activeMission.id}`)}
-          className={styles.todaysActionCard}
-        >
-          <div className={styles.missionTopRow}>
-            <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-              <Badge variant="gold" size="sm">Daily Quest</Badge>
-              <Badge variant="purple" size="sm">{activeMission.difficulty.toUpperCase()}</Badge>
+        {activeMission ? (
+          <Card
+            variant="interactive"
+            padding="lg"
+            onClick={() => navigate(`/app/missions/${activeMission.id}`)}
+            className={styles.todaysActionCard}
+          >
+            <div className={styles.missionTopRow}>
+              <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                <Badge variant="gold" size="sm">Daily Quest</Badge>
+                <Badge variant="purple" size="sm">{activeMission.difficulty.toUpperCase()}</Badge>
+              </div>
+              <span className={styles.xpTag}>+{activeMission.xpReward} XP</span>
             </div>
-            <span className={styles.xpTag}>+{activeMission.xpReward} XP</span>
-          </div>
 
-          <div>
-            <h3 className={styles.missionBigTitle}>{activeMission.title}</h3>
-            <p className={styles.missionShortDesc}>{activeMission.description}</p>
-          </div>
-
-          <div className={styles.proofStatusRow}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Clock size={16} color="#A4ABC4" />
-              <span className={styles.timeLeft}>{activeMission.deadlineText}</span>
+            <div>
+              <h3 className={styles.missionBigTitle}>{activeMission.title}</h3>
+              <p className={styles.missionShortDesc}>{activeMission.description}</p>
             </div>
-            <span className={styles.proofText}>
-              {activeMission.squadSubmissions.length} of {squad.members.length} submitted
-            </span>
-          </div>
 
-          <CardFooter style={{ marginTop: '8px', paddingBottom: 0 }}>
-            <span className="text-caption">Click to view rules & drop photo proof</span>
-            <Button
-              variant="primary"
-              size="md"
-              leftIcon={<Camera size={16} />}
-              rightIcon={<ArrowRight size={16} />}
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/app/missions/${activeMission.id}`);
-              }}
-            >
-              Start Mission
-            </Button>
-          </CardFooter>
-        </Card>
+            <div className={styles.proofStatusRow}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Clock size={16} color="#A4ABC4" />
+                <span className={styles.timeLeft}>{activeMission.deadlineText}</span>
+              </div>
+              <span className={styles.proofText}>
+                {activeMission.squadSubmissions.length} of {squad.members.length} submitted
+              </span>
+            </div>
+
+            <CardFooter style={{ marginTop: '8px', paddingBottom: 0 }}>
+              <span className="text-caption">Click to view rules & drop photo proof</span>
+              <Button
+                variant="primary"
+                size="md"
+                leftIcon={<Camera size={16} />}
+                rightIcon={<ArrowRight size={16} />}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/app/missions/${activeMission.id}`);
+                }}
+              >
+                Start Mission
+              </Button>
+            </CardFooter>
+          </Card>
+        ) : (
+          <Card variant="standard" padding="lg">
+            <p className="text-caption">Daily mission briefing loading...</p>
+          </Card>
+        )}
       </section>
 
       {/* 2. Shared Mascot Showcase & Squad Progress Card */}
@@ -205,7 +211,7 @@ export const SquadPage: React.FC = () => {
               evolutionLevel={squad.evolutionLevel}
               size="large"
               animation={mascotAnim}
-              speechBubble={activeMission.briefingSpeech}
+              speechBubble={activeMission ? activeMission.briefingSpeech : "Ready for today's squad quest?"}
               showStageBadge
             />
           </div>
