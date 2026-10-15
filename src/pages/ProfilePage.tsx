@@ -17,18 +17,10 @@ import {
   useToast,
 } from '../components/ui';
 import { MascotDisplay } from '../components/mascot';
-import { EVOLUTION_STAGES } from '../components/mascot/mascotRegistry';
+import { EVOLUTION_STAGES, STAGE_XP_THRESHOLDS } from '../components/mascot/mascotRegistry';
 import { useSquad, useAuth } from '../context';
 import type { MascotEvolutionLevel } from '../types/mascot';
 import styles from './ProfilePage.module.css';
-
-const STAGE_XP_THRESHOLDS: Record<MascotEvolutionLevel, number> = {
-  1: 0,
-  2: 300,
-  3: 600,
-  4: 1000,
-  5: 1500,
-};
 
 export const ProfilePage: React.FC = () => {
   const navigate = useNavigate();

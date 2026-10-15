@@ -14,7 +14,9 @@
     "test:phase3b": "tsx src/scripts/testPhase3B.ts",
     "test:phase4a": "tsx src/scripts/testPhase4A.ts",
     "test:phase4b": "tsx src/scripts/testPhase4B.ts",
-    "test:phase4c": "tsx src/scripts/testPhase4C.ts"
+    "test:phase4c": "tsx src/scripts/testPhase4C.ts",
+    "test:phase4d": "tsx src/scripts/testPhase4D.ts",
+    "test:phase4e1": "tsx src/scripts/testPhase4E1.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",
@@ -22,6 +24,7 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "helmet": "^8.0.0",
+    "openai": "^6.49.0",
     "pg": "^8.23.1",
     "sidequest": "file:..",
     "ws": "^8.22.0"

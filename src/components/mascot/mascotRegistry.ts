@@ -105,3 +105,74 @@ export function resolveMascotAssetUrl(options: {
 export function getEvolutionStageInfo(level: MascotEvolutionLevel): EvolutionStageInfo {
   return EVOLUTION_STAGES[level] || EVOLUTION_STAGES[1];
 }
+
+/**
+ * Authoritative progression and milestone configuration.
+ * Consistent with PostgreSQL GREATEST(1, FLOOR(xp / 300) + 1).
+ */
+export const STAGE_XP_THRESHOLDS: Record<MascotEvolutionLevel, number> = {
+  1: 0,
+  2: 300,
+  3: 600,
+  4: 900,
+  5: 1200,
+};
+
+export const STAGE_LEVEL_THRESHOLDS: Record<MascotEvolutionLevel, number> = {
+  1: 1,
+  2: 2,
+  3: 3,
+  4: 4,
+  5: 5,
+};
+
+export function deriveLevelFromXp(xp: number): number {
+  return Math.max(1, Math.floor(xp / 300) + 1);
+}
+
+export function deriveEvolutionStageFromLevel(level: number): MascotEvolutionLevel {
+  return Math.min(5, Math.max(1, level)) as MascotEvolutionLevel;
+}
+
+export interface NextEvolutionMilestone {
+  nextStage: MascotEvolutionLevel | null;
+  nextStageInfo: EvolutionStageInfo | null;
+  xpRequired: number;
+  xpRemaining: number;
+  levelRequired: number;
+  isMaxEvolution: boolean;
+  progressPercent: number;
+}
+
+export function calculateNextEvolution(currentLevel: number, currentXp: number): NextEvolutionMilestone {
+  const currentStage = deriveEvolutionStageFromLevel(currentLevel);
+  if (currentStage >= 5) {
+    return {
+      nextStage: null,
+      nextStageInfo: null,
+      xpRequired: 1200,
+      xpRemaining: 0,
+      levelRequired: 5,
+      isMaxEvolution: true,
+      progressPercent: 100,
+    };
+  }
+
+  const nextStage = (currentStage + 1) as MascotEvolutionLevel;
+  const currentStageXp = STAGE_XP_THRESHOLDS[currentStage];
+  const nextStageXp = STAGE_XP_THRESHOLDS[nextStage];
+  const xpNeeded = nextStageXp - currentStageXp;
+  const xpIntoStage = Math.max(0, currentXp - currentStageXp);
+  const xpRemaining = Math.max(0, nextStageXp - currentXp);
+  const progressPercent = Math.min(100, Math.floor((xpIntoStage / xpNeeded) * 100));
+
+  return {
+    nextStage,
+    nextStageInfo: EVOLUTION_STAGES[nextStage],
+    xpRequired: nextStageXp,
+    xpRemaining,
+    levelRequired: STAGE_LEVEL_THRESHOLDS[nextStage],
+    isMaxEvolution: false,
+    progressPercent,
+  };
+}

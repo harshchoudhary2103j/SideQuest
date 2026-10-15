@@ -15,6 +15,12 @@ export interface ServerConfig {
     serviceRoleKey: string | null;
     isConfigured: boolean;
   };
+  openai: {
+    apiKey: string | null;
+    model: string;
+    timeoutMs: number;
+    isConfigured: boolean;
+  };
 }
 
 function parseOrigins(raw?: string): string[] {
@@ -33,6 +39,7 @@ function isPlaceholder(value?: string | null): boolean {
     value.includes('your-project-ref') ||
     value.includes('your-supabase-anon-key') ||
     value.includes('your-supabase-service-role') ||
+    value.includes('your-openai-api-key') ||
     value.trim() === ''
   );
 }
@@ -57,6 +64,12 @@ export function validateAndLoadConfig(): ServerConfig {
     );
   }
 
+  // OpenAI Provider Configuration (Phase 4E.1)
+  const rawOpenAiKey = process.env.OPENAI_API_KEY || null;
+  const rawOpenAiModel = process.env.OPENAI_MODEL || 'gpt-4.1-mini';
+  const rawTimeout = parseInt(process.env.OPENAI_TIMEOUT_MS || '5000', 10);
+  const isOpenAiConfigured = !isPlaceholder(rawOpenAiKey);
+
   return {
     env,
     port,
@@ -66,6 +79,12 @@ export function validateAndLoadConfig(): ServerConfig {
       anonKey: isSupabaseConfigured ? (rawAnonKey as string) : null,
       serviceRoleKey: !isPlaceholder(rawServiceKey) ? (rawServiceKey as string) : null,
       isConfigured: isSupabaseConfigured,
+    },
+    openai: {
+      apiKey: isOpenAiConfigured ? (rawOpenAiKey as string) : null,
+      model: rawOpenAiModel,
+      timeoutMs: Number.isNaN(rawTimeout) || rawTimeout <= 0 ? 5000 : rawTimeout,
+      isConfigured: isOpenAiConfigured,
     },
   };
 }

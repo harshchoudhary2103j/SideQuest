@@ -28,6 +28,7 @@ import {
 } from '../components/ui';
 import { MascotDisplay } from '../components/mascot';
 import { useSquad } from '../context';
+import { fetchQuestyReaction } from '../lib/reactions';
 import type { SubmissionType, SquadMemberSubmission } from '../types';
 import styles from './MissionDetailPage.module.css';
 
@@ -214,11 +215,46 @@ export const MissionDetailPage: React.FC = () => {
         });
         return;
       }
-      showToast({
-        type: 'success',
-        title: 'Proof Approved! 🎉',
-        message: `+${res.xpAwarded} Squad XP verified & added to vault. Mission completed!`,
-      });
+      const eventType = res.evolved
+        ? 'mascot_evolved'
+        : res.leveledUp
+        ? 'level_up'
+        : 'mission_approved';
+
+      if (res.evolved) {
+        showToast({
+          type: 'success',
+          title: `Questy Evolved! ✨ ${res.stageName || 'New Stage'}`,
+          message: `+${res.xpAwarded} XP! Squad advanced to Level ${res.newLevel}! Questy evolved into Stage ${res.newEvolutionStage}!`,
+        });
+      } else if (res.leveledUp) {
+        showToast({
+          type: 'success',
+          title: `Squad Level Up! ⚡ Level ${res.newLevel}`,
+          message: `+${res.xpAwarded} XP! Squad reached Level ${res.newLevel}!`,
+        });
+      } else {
+        showToast({
+          type: 'success',
+          title: 'Proof Approved! 🎉',
+          message: `+${res.xpAwarded} Squad XP verified & added to vault. Mission completed!`,
+        });
+      }
+
+      // Safe, asynchronous, non-blocking Questy AI reaction
+      fetchQuestyReaction(subId, eventType, res.stageName)
+        .then((reaction) => {
+          if (reaction?.reaction) {
+            showToast({
+              type: 'info',
+              title: 'Questy 🐾',
+              message: `“${reaction.reaction}”`,
+            });
+          }
+        })
+        .catch(() => {
+          // Never disrupt approval flow on reaction error
+        });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Approval failed';
       showToast({ type: 'error', title: 'Review Error', message: msg });

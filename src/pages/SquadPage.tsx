@@ -13,13 +13,14 @@ import {
   useToast,
 } from '../components/ui';
 import { MascotDisplay } from '../components/mascot';
+import { calculateNextEvolution, getEvolutionStageInfo } from '../components/mascot/mascotRegistry';
 import { useSquad, useAuth } from '../context';
 import type { MascotAnimation, MascotExpression } from '../types/mascot';
 import styles from './SquadPage.module.css';
 
 export const SquadPage: React.FC = () => {
   const navigate = useNavigate();
-  const { squad, missions, activity, petQuesty, hasSquad, isLoadingSquad } = useSquad();
+  const { squad, missions, activity, lore, petQuesty, hasSquad, isLoadingSquad } = useSquad();
   const { user } = useAuth();
   const { showToast } = useToast();
 
@@ -198,105 +199,206 @@ export const SquadPage: React.FC = () => {
       </section>
 
       {/* 2. Shared Mascot Showcase & Squad Progress Card */}
-      <section className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <h2 className="text-section-title">Squad Companion</h2>
-          <Badge variant="purple" size="sm">Questy</Badge>
-        </div>
+      {(() => {
+        const nextMilestone = calculateNextEvolution(squad.level, squad.currentXp);
+        const currentStageInfo = getEvolutionStageInfo(squad.evolutionLevel);
+        const levelProgressXp = squad.currentXp % 300;
+        const xpNeededForNextLevel = 300 - levelProgressXp;
+        const nextLevelNumber = squad.level + 1;
+        const recentProgressionEvent = lore.find(
+          (item) => item.category === 'milestones' || item.fallbackIcon === '✨' || item.fallbackIcon === '🏆'
+        );
+        const latestLoreItem = lore.length > 0 ? lore[0] : null;
 
-        <Card variant="featured" padding="lg" className={styles.mascotCard}>
-          <div className={styles.mascotCenter}>
-            <MascotDisplay
-              expression={mascotExpr}
-              evolutionLevel={squad.evolutionLevel}
-              size="large"
-              animation={mascotAnim}
-              speechBubble={activeMission ? activeMission.briefingSpeech : "Ready for today's squad quest?"}
-              showStageBadge
-            />
-          </div>
-
-          <div className={styles.xpSection}>
-            <ProgressBar
-              value={squad.currentXp}
-              max={squad.targetXp}
-              label={`Squad XP: ${squad.currentXp} / ${squad.targetXp} XP`}
-              showValue
-              variant="gradient"
-              size="md"
-              animated
-            />
-          </div>
-
-          <div className={styles.mascotActions}>
-            <Button
-              variant="secondary"
-              size="sm"
-              leftIcon={<Heart size={16} color="#F04F9D" />}
-              onClick={handlePetQuesty}
-            >
-              Pet Questy ({heartsCount})
-            </Button>
-
-            <Button
-              variant="outline"
-              size="sm"
-              leftIcon={<Sparkles size={16} color="#D4FF38" />}
-              onClick={() => navigate('/app/profile')}
-            >
-              Evolution Vault
-            </Button>
-          </div>
-        </Card>
-      </section>
-
-      {/* 3. Recent Squad Activity Stream */}
-      <section className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <h2 className="text-section-title">Live Squad Activity</h2>
-          <span className="text-caption">Private feed</span>
-        </div>
-
-        <Card variant="standard" padding="md">
-          <div className={styles.activityFeed}>
-            {activity.slice(0, 4).map((act) => (
-              <div key={act.id} className={styles.activityItem}>
-                <Avatar name={act.memberName} size="sm" ring="none" />
-                <div className={styles.actInfo}>
-                  <p className={styles.actContent}>
-                    <strong>{act.memberName}</strong> {act.content}
-                  </p>
-                  <span className={styles.actTime}>{act.timeAgo}</span>
+        return (
+          <>
+            <section className={styles.section}>
+              <div className={styles.sectionHeader}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <h2 className="text-section-title">Squad Companion</h2>
+                  <Badge variant="purple" size="sm">Questy</Badge>
                 </div>
-                {act.xpEarned && (
-                  <Badge variant="gold" size="sm">+{act.xpEarned} XP</Badge>
-                )}
+                <span className="text-caption">
+                  Stage {squad.evolutionLevel} · {currentStageInfo.name}
+                </span>
               </div>
-            ))}
-          </div>
-        </Card>
-      </section>
 
-      {/* 4. Squad Lore Highlights Teaser */}
-      <section className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <h2 className="text-section-title">Latest Squad Lore</h2>
-          <span className={styles.viewAllLink} onClick={() => navigate('/app/lore')}>
-            Vault Archive →
-          </span>
-        </div>
+              <Card variant="featured" padding="lg" className={styles.mascotCard}>
+                {/* Companion Stage & Cumulative XP Header */}
+                <div className={styles.stageHeroBanner}>
+                  <div className={styles.stageBadgeRow}>
+                    <Badge variant="purple" size="sm">
+                      Stage {squad.evolutionLevel} · {currentStageInfo.name}
+                    </Badge>
+                    <span className={styles.stageTagline}>“{currentStageInfo.tagline}”</span>
+                  </div>
+                  <div className={styles.totalXpPill}>
+                    <span className={styles.totalXpLabel}>Total Squad XP</span>
+                    <span className={styles.totalXpValue}>{squad.currentXp} XP</span>
+                  </div>
+                </div>
 
-        <Card variant="standard" padding="md" onClick={() => navigate('/app/lore')} style={{ cursor: 'pointer' }}>
-          <div className={styles.loreSnippet}>
-            <span className={styles.loreEmoji}>🥟</span>
-            <div className={styles.loreInfo}>
-              <h4 className={styles.loreTitle}>The 2 AM Paratha Expedition</h4>
-              <p className={styles.loreQuote}>“Another iconic memory for the books! 💜” — Questy</p>
-            </div>
-            <ArrowRight size={18} color="#A4ABC4" />
-          </div>
-        </Card>
-      </section>
+                {/* Mascot Visual Display */}
+                <div className={styles.mascotCenter}>
+                  <MascotDisplay
+                    expression={mascotExpr}
+                    evolutionLevel={squad.evolutionLevel}
+                    size="large"
+                    animation={mascotAnim}
+                    speechBubble={activeMission ? activeMission.briefingSpeech : "Ready for today's squad quest?"}
+                    showStageBadge={false}
+                  />
+                </div>
+
+                {/* In-Level XP Progress */}
+                <div className={styles.progressionDetails}>
+                  <div className={styles.levelProgressHeader}>
+                    <span className={styles.levelBadgeText}>
+                      <strong>Level {squad.level}</strong> Squad
+                    </span>
+                    <span className={styles.levelXpSubtext}>
+                      {levelProgressXp} / 300 XP in Level {squad.level} ({xpNeededForNextLevel} XP to Level {nextLevelNumber})
+                    </span>
+                  </div>
+                  <ProgressBar
+                    value={levelProgressXp}
+                    max={300}
+                    showValue={false}
+                    variant="gradient"
+                    size="md"
+                    animated
+                  />
+                </div>
+
+                {/* Next Evolution Milestone */}
+                <div className={styles.evolutionMilestoneBox}>
+                  {!nextMilestone.isMaxEvolution && nextMilestone.nextStageInfo ? (
+                    <div className={styles.milestoneContent}>
+                      <div className={styles.milestoneHeader}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <Sparkles size={14} color="#D4FF38" />
+                          <span className={styles.milestoneTitle}>
+                            Next Evolution: Stage {nextMilestone.nextStage} · {nextMilestone.nextStageInfo.name}
+                          </span>
+                        </div>
+                        <Badge variant="gold" size="sm">
+                          Unlocks at Level {nextMilestone.levelRequired}
+                        </Badge>
+                      </div>
+                      <p className={styles.milestoneDesc}>
+                        {nextMilestone.xpRemaining} XP remaining until Questy evolves into {nextMilestone.nextStageInfo.name}.
+                      </p>
+                      <ProgressBar
+                        value={nextMilestone.progressPercent}
+                        max={100}
+                        showValue={false}
+                        variant="lime"
+                        size="sm"
+                      />
+                    </div>
+                  ) : (
+                    <div className={styles.maxEvolutionBanner}>
+                      <Sparkles size={18} color="#FFC857" />
+                      <div style={{ textAlign: 'left' }}>
+                        <strong style={{ color: '#FFC857', display: 'block', fontSize: '0.875rem' }}>
+                          Maximum Evolution Reached! 👑
+                        </strong>
+                        <span className="text-caption" style={{ color: 'var(--color-text-secondary)' }}>
+                          Questy has achieved Legendary form ({squad.currentXp} XP cumulative).
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Recent Progression Milestone Alert (if available) */}
+                {recentProgressionEvent && (
+                  <div className={styles.recentMilestoneAlert}>
+                    <span className={styles.milestoneIcon}>{recentProgressionEvent.fallbackIcon}</span>
+                    <div className={styles.milestoneInfo}>
+                      <div className={styles.milestoneInfoTop}>
+                        <strong className={styles.milestoneAlertTitle}>{recentProgressionEvent.title}</strong>
+                        <span className={styles.milestoneDate}>{recentProgressionEvent.date}</span>
+                      </div>
+                      <p className={styles.milestoneAlertDesc}>{recentProgressionEvent.caption}</p>
+                    </div>
+                  </div>
+                )}
+
+                <div className={styles.mascotActions}>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    leftIcon={<Heart size={16} color="#F04F9D" />}
+                    onClick={handlePetQuesty}
+                  >
+                    Pet Questy ({heartsCount})
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    leftIcon={<Sparkles size={16} color="#D4FF38" />}
+                    onClick={() => navigate('/app/profile')}
+                  >
+                    Evolution Vault
+                  </Button>
+                </div>
+              </Card>
+            </section>
+
+            {/* 3. Recent Squad Activity Stream */}
+            <section className={styles.section}>
+              <div className={styles.sectionHeader}>
+                <h2 className="text-section-title">Live Squad Activity</h2>
+                <span className="text-caption">Private feed</span>
+              </div>
+
+              <Card variant="standard" padding="md">
+                <div className={styles.activityFeed}>
+                  {activity.slice(0, 4).map((act) => (
+                    <div key={act.id} className={styles.activityItem}>
+                      <Avatar name={act.memberName} size="sm" ring="none" />
+                      <div className={styles.actInfo}>
+                        <p className={styles.actContent}>
+                          <strong>{act.memberName}</strong> {act.content}
+                        </p>
+                        <span className={styles.actTime}>{act.timeAgo}</span>
+                      </div>
+                      {act.xpEarned && (
+                        <Badge variant="gold" size="sm">+{act.xpEarned} XP</Badge>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            </section>
+
+            {/* 4. Squad Lore Highlights Teaser */}
+            <section className={styles.section}>
+              <div className={styles.sectionHeader}>
+                <h2 className="text-section-title">Latest Squad Lore</h2>
+                <span className={styles.viewAllLink} onClick={() => navigate('/app/lore')}>
+                  Vault Archive →
+                </span>
+              </div>
+
+              <Card variant="standard" padding="md" onClick={() => navigate('/app/lore')} style={{ cursor: 'pointer' }}>
+                <div className={styles.loreSnippet}>
+                  <span className={styles.loreEmoji}>{latestLoreItem?.fallbackIcon || '🥟'}</span>
+                  <div className={styles.loreInfo}>
+                    <h4 className={styles.loreTitle}>{latestLoreItem?.title || 'The 2 AM Paratha Expedition'}</h4>
+                    <p className={styles.loreQuote}>
+                      “{latestLoreItem?.questyComment || 'Another iconic memory for the books! 💜'}” — Questy
+                    </p>
+                  </div>
+                  <ArrowRight size={18} color="#A4ABC4" />
+                </div>
+              </Card>
+            </section>
+          </>
+        );
+      })()}
 
       {/* Invite Squad Mates Modal */}
       <Modal

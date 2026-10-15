@@ -25,6 +25,7 @@ import {
 } from './squadContextDef';
 import { useAuth } from './useAuth';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { EVOLUTION_STAGES } from '../components/mascot/mascotRegistry';
 
 function mapDailyRowToMission(row: DailyMissionRow): Mission {
   return {
@@ -126,7 +127,7 @@ export const SquadProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [missionsError, setMissionsError] = useState<string | null>(null);
   const [missions, setMissions] = useState<Mission[]>([]);
   const [activity, setActivity] = useState<ActivityEvent[]>(INITIAL_ACTIVITY);
-  const [lore] = useState<LoreItem[]>(INITIAL_LORE);
+  const [lore, setLore] = useState<LoreItem[]>(INITIAL_LORE);
 
   const isFetchingSquad = useRef(false);
 
@@ -267,6 +268,47 @@ export const SquadProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         });
         setMissions(mapped);
         setMissionsError(null);
+      }
+
+      // 7. Fetch authoritative squad lore vault entries
+      try {
+        const { data: loreData } = await supabase
+          .from('squad_lore')
+          .select('*')
+          .eq('squad_id', targetSquadId)
+          .order('created_at', { ascending: false })
+          .limit(20);
+
+        if (loreData && loreData.length > 0) {
+          const mappedRealLore: LoreItem[] = loreData.map((item) => {
+            const author = profilesMap.get(item.created_by || '');
+            const isMilestone = item.event_type === 'milestone_unlocked' || item.event_type === 'mascot_evolution';
+            const icon = item.event_type === 'mascot_evolution' ? '✨' : item.event_type === 'milestone_unlocked' ? '🏆' : '🎯';
+            const meta = (item.metadata || {}) as Record<string, any>;
+            return {
+              id: item.id,
+              title: item.title,
+              category: isMilestone ? 'milestones' : item.event_type === 'mission_completed' ? 'missions' : 'chaos',
+              date: new Date(item.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+              submitterName: author?.display_name || 'Squad Teammate',
+              caption: item.content || 'Archived in squad memory vault.',
+              questyComment: item.event_type === 'mascot_evolution'
+                ? `Questy evolved into ${meta.stage_name || 'a new form'}! 🌟`
+                : item.event_type === 'milestone_unlocked'
+                ? `Level ${meta.level || ''} unlocked! ⚡`
+                : 'Another memory safely stored in the vault! 🔒',
+              xpAwarded: Number(meta.xp_awarded || meta.total_xp || 0),
+              fallbackIcon: icon,
+              likesCount: 3,
+              commentsCount: 1,
+            };
+          });
+          setLore([...mappedRealLore, ...INITIAL_LORE]);
+        } else {
+          setLore(INITIAL_LORE);
+        }
+      } catch (loreErr) {
+        console.warn('[SquadContext] Error loading squad lore:', loreErr);
       }
     } catch (err) {
       console.warn('[SquadContext] Unexpected error loading squad:', err);
@@ -417,22 +459,39 @@ export const SquadProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         );
 
         if (decision === 'approved') {
-          setSquad((prev) => {
-            const nextXp = prev.currentXp + xpGained;
-            const nextLevel = Math.max(1, Math.floor(nextXp / 300) + 1);
-            return {
-              ...prev,
-              currentXp: nextXp,
-              level: nextLevel,
-              targetXp: nextLevel * 300,
-            };
-          });
+          const prevLevel = squad.level;
+          const nextXp = squad.currentXp + xpGained;
+          const nextLevel = Math.max(1, Math.floor(nextXp / 300) + 1);
+          const prevStage = Math.min(5, Math.max(1, prevLevel)) as MascotEvolutionLevel;
+          const nextStage = Math.min(5, Math.max(1, nextLevel)) as MascotEvolutionLevel;
+          const leveledUp = nextLevel > prevLevel;
+          const evolved = nextStage > prevStage;
+
+          setSquad((prev) => ({
+            ...prev,
+            currentXp: nextXp,
+            level: nextLevel,
+            evolutionLevel: nextStage,
+            targetXp: nextLevel * 300,
+          }));
+
+          return {
+            success: true,
+            decision,
+            xpAwarded: xpGained,
+            newTotalXp: nextXp,
+            newLevel: nextLevel,
+            newEvolutionStage: nextStage,
+            leveledUp,
+            evolved,
+            stageName: EVOLUTION_STAGES[nextStage]?.name,
+          };
         }
 
         return {
           success: true,
           decision,
-          xpAwarded: decision === 'approved' ? xpGained : 0,
+          xpAwarded: 0,
         };
       }
 
@@ -454,6 +513,10 @@ export const SquadProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           xp_awarded: number;
           new_total_xp?: number;
           new_level?: number;
+          new_evolution_stage?: number;
+          leveled_up?: boolean;
+          evolved?: boolean;
+          stage_name?: string;
           assignment_id?: string;
         };
 
@@ -466,13 +529,17 @@ export const SquadProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           xpAwarded: res.xp_awarded,
           newTotalXp: res.new_total_xp,
           newLevel: res.new_level,
+          newEvolutionStage: res.new_evolution_stage,
+          leveledUp: res.leveled_up,
+          evolved: res.evolved,
+          stageName: res.stage_name,
         };
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : 'Review operation failed';
         return { success: false, error: msg };
       }
     },
-    [user, squad.id, loadRealSquad]
+    [user, squad.id, squad.level, squad.currentXp, loadRealSquad]
   );
 
   const petQuesty = useCallback(() => {

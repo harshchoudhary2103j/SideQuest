@@ -22,6 +22,10 @@ export interface ReviewSubmissionResult {
   xpAwarded?: number;
   newTotalXp?: number;
   newLevel?: number;
+  newEvolutionStage?: number;
+  leveledUp?: boolean;
+  evolved?: boolean;
+  stageName?: string;
 }
 
 export interface SquadContextValue {
